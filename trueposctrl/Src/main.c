@@ -50,7 +50,7 @@
 #include "stm32f1xx_hal.h"
 #include "cmsis_os.h"
 #include "usb_device.h"
-
+#include "truepos.h"
 /* USER CODE BEGIN Includes */
 #include "stdio.h"
 #include "stddef.h"
@@ -126,7 +126,7 @@ int main(void)
 
   /* USER CODE BEGIN SysInit */
   initialise_monitor_handles();
-  puts("Hello\n");
+  puts("Hello world\n");
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
@@ -161,6 +161,7 @@ int main(void)
 
   /* USER CODE BEGIN RTOS_QUEUES */
   uartRxInit(3, &huart3, 256);
+  TruePosInit(&huart3, 3);
   /* USER CODE END RTOS_QUEUES */
  
 
@@ -385,21 +386,9 @@ void StartDefaultTask(void const * argument)
 	/* Infinite loop */
 	for(;;)
 	{
-		i=0;
-		//printf("Checking buffer\n");
-		stop=0;
-		do {
-			if(xQueueReceive(uartRxGetQueue(3), &buf[i], 1))
-				i++;
-			else
-				stop=1;
-		} while(!stop && i<20);
-		if(i>=1)
-			CDC_Transmit_FS((uint8_t*)buf,i);
-		/*buf[i-1] = '\0';
-		printf(buf);*/
+		TruePosReadBuffer();
 		ledState = !ledState;
-		//HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, ledState);
+		HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, ledState);
 		osDelay(50);
 	}
   /* USER CODE END 5 */ 
