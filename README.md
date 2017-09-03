@@ -1,11 +1,24 @@
 # trueposctrl
 Stm32 control program for TruePosition GPSDO
 
-Currently, it does NOT WORK. It provides a USB CDC interface which mirrors serial input. Over time, functionality will be added.
+Currently, it only very slightly works.
+
+Things implemented:
+* Provides a USB CDC interface which mirrors the GPSDO output.
+* Sends the $PROCEED to start up the GPSDO when needed.
+
+Todo:
+
+* Relay commands from USB to the GPSDO
+* Display info on a screen?
+* LED to show lock status?
+* Automatically enable the PPSDBG (to get tuning voltage)
 
 # General
 
-This software uses STM32CubeMX to configure the STM libraries, and is built with System Workbench for STM32.
+This software uses STM32CubeMX to configure the STM libraries, and is built with System Workbench for STM32. It uses FreeRTOS.
+
+Getting serial-port reads with arbrary length to work seems not well documented (and near-impossible with the ST HAL libraries). I ended up using a RTOS queue structure to buffer data. The command parser reads from the queue, as needed.
 
 # Hardware
 
