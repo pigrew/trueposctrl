@@ -56,7 +56,11 @@ dkms.conf
 
 # Eclipse gitignore
 RemoteSystemsTempFiles
-.metadata
+.metadata/*
+!.metadata/.plugins
+.metadata/.plugins/*
+!.metadata/.plugins/org.eclipse.debug.core
+
 bin/
 tmp/
 *.tmp
@@ -72,7 +76,7 @@ local.properties
 .externalToolBuilders/
 
 # Locally stored "Eclipse launch configurations"
-*.launch
+#*.launch
 
 # PyDev specific (Python IDE for Eclipse)
 *.pydevproject
