@@ -387,9 +387,9 @@ void StartDefaultTask(void const * argument)
 	for(;;)
 	{
 		TruePosReadBuffer();
-		ledState = !ledState;
-		HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, ledState);
-		osDelay(50);
+		//ledState = !ledState;
+		//HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, ledState);
+		//osDelay(50);
 	}
   /* USER CODE END 5 */ 
 }
