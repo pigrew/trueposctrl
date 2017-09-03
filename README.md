@@ -3,6 +3,10 @@ Stm32 control program for TruePosition GPSDO
 
 Currently, it does NOT WORK. It provides a USB CDC interface which mirrors serial input. Over time, functionality will be added.
 
+# General
+
+This software uses STM32CubeMX to configure the STM libraries, and is built with System Workbench for STM32.
+
 # Hardware
 
 This is targetting a "blue pill" STM32F103C8 board. The board requires a few modifications:
