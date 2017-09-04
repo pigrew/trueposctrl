@@ -11,6 +11,8 @@
 
 static const char* Splash1 = "TruePosition GPSDO";
 static const char* Splash2 = "Controller";
+static const char* NoConnection1 = "TruePosition GPSDO";
+static const char* NoConnection2 = "NOT DETECTED";
 dispState_struct dispState;
 TaskHandle_t  displayTaskHandle;
 
@@ -51,6 +53,15 @@ static void RefreshDisplay() {
 	int l, i;
 	TM_FontDef_t *font = &TM_Font_7x10;
 	TM_SSD1306_Fill(SSD1306_COLOR_BLACK);
+	/* no communication */
+	if(!(dispState.statusFlags & GPSDO_CONNECTED)) {
+		TM_SSD1306_GotoXY(64-strlen(NoConnection1)*(font->FontWidth)/2,10);
+		TM_SSD1306_Puts(NoConnection1, font, SSD1306_COLOR_WHITE);
+		TM_SSD1306_GotoXY(64-strlen(NoConnection2)*(font->FontWidth)/2,25);
+		TM_SSD1306_Puts(NoConnection2, font, SSD1306_COLOR_WHITE);
+		TM_SSD1306_UpdateScreen();
+		return;
+	}
 	/* Clock */
 	uint32_t c = (dispState.Clock - dispState.UTCOffset) % (86400UL);
 	uint8_t sec = c % 60UL;

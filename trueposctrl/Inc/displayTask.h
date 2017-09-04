@@ -8,8 +8,15 @@
 #ifndef DISPLAYTASK_H_
 #define DISPLAYTASK_H_
 
+enum {
+	GPSDO_CONNECTED = 1,
+	BAD_ANTENNA = 2,
+	STARTUP = 2,
+};
+
 typedef struct {
-	__IO int status;
+	__IO uint8_t statusFlags;
+	__IO uint8_t status;
 	__IO uint8_t NumSats;
 	__IO float Temp;
 	__IO uint32_t Clock;

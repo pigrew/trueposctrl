@@ -53,7 +53,7 @@ void TruePosReadBuffer() {
 	int stop=0;
 	char x;
 	do {
-		if(xQueueReceive(uartRxGetQueue(uart_id), (uint8_t*)&x, 0)) {
+		if(xQueueReceive(uartRxGetQueue(uart_id), (uint8_t*)&x, 1500/portTICK_PERIOD_MS  /* ms*/)) {
 			if(cmdBufLen == 0 && x != '$') {
 			} else if (x == '\r' || x == '\n') {
 				cmdBuf[cmdBufLen] = '\r';
@@ -62,6 +62,8 @@ void TruePosReadBuffer() {
 				usbTx(cmdBuf);
 				HandleCommand();
 				cmdBufLen = 0;
+
+				dispState.statusFlags |= GPSDO_CONNECTED;
 			} else if (cmdBufLen < (CMDBUF_LEN-4)) {
 				cmdBuf[cmdBufLen] = x;
 				cmdBufLen++;
@@ -71,6 +73,8 @@ void TruePosReadBuffer() {
 			}
 		} else {
 			stop=1;
+			dispState.statusFlags &= ~GPSDO_CONNECTED;
+			displayRequestRefresh();
 		}
 	} while(!stop);
 
