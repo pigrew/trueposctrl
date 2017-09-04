@@ -146,6 +146,8 @@ void StartDisplayTask(void const * argument) {
 	TM_SSD1306_GotoXY(64-strlen(Splash2)*(font->FontWidth)/2,25);
 	TM_SSD1306_Puts(Splash2, font, SSD1306_COLOR_WHITE);
 	TM_SSD1306_UpdateScreen();
+	/* Leave the splash screen for a moment, just because. */
+	osDelay(1500);
 	do {
 		ulTaskNotifyTake(pdTRUE, portMAX_DELAY );
 		RefreshDisplay();
