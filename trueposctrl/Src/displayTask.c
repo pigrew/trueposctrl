@@ -46,9 +46,35 @@ const char* const statusLabels[] = {
 static void RefreshDisplay() {
 	const char *str;
 	char strbuf[20];
+	char strbuf2[10];
 	const int dY = 14;
 	TM_FontDef_t *font = &TM_Font_7x10;
 	TM_SSD1306_Fill(SSD1306_COLOR_BLACK);
+	/* Clock */
+	uint32_t c = (dispState.Clock - dispState.UTCOffset) % (86400UL);
+	uint8_t sec = c % 60UL;
+	c = (c - sec) / (60);
+	uint8_t min = c % 60UL;
+	c = (c - sec) / (60);
+	uint8_t hour = c;
+	strbuf[0] = '\0';
+	itoa(hour,strbuf2,10);
+	if(hour<10)
+		strcat(strbuf,"0");
+	strcat(strbuf,strbuf2);
+	strcat(strbuf, ":");
+	if(min<10)
+		strcat(strbuf,"0");
+	itoa(min,strbuf2,10);
+	strcat(strbuf, strbuf2);
+	strcat(strbuf, ":");
+	if(sec<10)
+		strcat(strbuf,"0");
+	itoa(sec,strbuf2,10);
+	strcat(strbuf, strbuf2);
+	TM_SSD1306_GotoXY(0,0);
+	TM_SSD1306_Puts(strbuf, font, SSD1306_COLOR_WHITE);
+
 	/* State */
 	str = NULL;
     if(dispState.status >= 0 && dispState.status <= 22) {
@@ -59,7 +85,7 @@ static void RefreshDisplay() {
     	itoa(dispState.status,&(strbuf[sizeof(statusPrefix)-1]),10);
     	str = strbuf;
     }
-	TM_SSD1306_GotoXY(0,0);
+	TM_SSD1306_GotoXY(128-font->FontWidth*strlen(str)-1,0);
 	TM_SSD1306_Puts(str, font, SSD1306_COLOR_WHITE);
 
 	/* NSats */
@@ -80,6 +106,8 @@ static void RefreshDisplay() {
 	}
 	TM_SSD1306_GotoXY(0,dY*2);
 	TM_SSD1306_Puts(strbuf, font, SSD1306_COLOR_WHITE);
+
+
 	TM_SSD1306_UpdateScreen();
 }
 

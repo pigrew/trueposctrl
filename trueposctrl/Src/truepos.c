@@ -41,6 +41,7 @@ static void HandlePPSDBG();
 static void HandleStatus();
 static void HandleStatusCode(int code);
 static void HandleExtStatus();
+static void HandleClock();
 static void usbTx(char *msg);
 
 void TruePosInit(UART_HandleTypeDef *uartPtr, uint16_t id) {
@@ -76,14 +77,14 @@ void TruePosReadBuffer() {
 }
 
 static void usbTx(char *msg) {
-
+	  USBD_CDC_HandleTypeDef *hcdc = (USBD_CDC_HandleTypeDef*)hUsbDeviceFS.pClassData;
  	size_t len = strlen(msg);
 	uint8_t result = CDC_Transmit_FS((uint8_t*)msg,len);
 	// Wait for completion, if success
-	if (result == USBD_OK){
+/*	if (result == USBD_OK){
 		while(CDC_Busy())
 			;
-	}
+	}*/
 }
 
 static void HandleCommand() {
@@ -100,7 +101,7 @@ static void HandleCommand() {
 			HAL_UART_Transmit(uart,(uint8_t*)"$PPSDBG 1\r\n",10,50);
 
 		}
-
+		HandleClock();
 	} else if(!strncmp(cmdBuf, RSP_STATUS, sizeof(RSP_STATUS)-1)) {
 		HandleStatus();
 	} else if(!strncmp(cmdBuf, RSP_PPSDBG, sizeof(RSP_PPSDBG)-1)) {
@@ -157,6 +158,25 @@ static void HandleExtStatus() {
 			break;
 		case 4:
 			dispState.Temp = strtof(t,NULL);
+		}
+		i++;
+		t = strtok_r(NULL, " \r\n",&saveptr);
+	}
+}
+static void HandleClock() {
+	clockNoPPSDBG = 0;
+	char *t;
+	char *saveptr;
+	int i=0;
+	t = strtok_r(cmdBuf, " \r\n",&saveptr);
+	while(t != NULL) {
+		switch(i) {
+		case 1: // NSats
+			dispState.Clock = strtoul(t,NULL,10);
+			break;
+		case 2:
+			dispState.UTCOffset = strtoul(t,NULL,10);
+			break;
 		}
 		i++;
 		t = strtok_r(NULL, " \r\n",&saveptr);
