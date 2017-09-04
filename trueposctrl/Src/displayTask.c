@@ -16,7 +16,7 @@ TaskHandle_t  displayTaskHandle;
 
 const char* const statusLabels[] = {
 		"Locked", // 0
-		"Recovering", // 1
+		"Recovery", // 1
 		"StartupB", //2
 		"Holdover", //3
 		NULL, // 4
@@ -29,15 +29,15 @@ const char* const statusLabels[] = {
 		NULL, // 11
 		NULL, // 12
 		NULL, // 13
-		"PreLock 0/4", // 14
-		"PreLock 1/4", // 15
-		"PreLock 2/4", // 16
-		"PreLock 3/4", // 17
-		"PreLock 4/4", // 18
+		"WaitA 0/4", // 14
+		"WaitA 1/4", // 15
+		"WaitA 2/4", // 16
+		"WaitA 3/4", // 17
+		"WaitA 4/4", // 18
 		"StartupC", // 19
-		"PreRecovery 0/2", // 20
-		"PreRecovery 1/2", // 11
-		"PreRecovery 2/2" // 22
+		"WaitB 0/2", // 20
+		"WaitB 1/2", // 11
+		"WaitB 2/2" // 22
 };
 #define statusPrefix "Status="
 #define nsatsPrefix "NSats="
