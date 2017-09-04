@@ -24,6 +24,7 @@
 #define RSP_CLOCK "$CLOCK"
 #define RSP_PPSDBG "$PPSDBG"
 #define RSP_STATUS "$STATUS"
+#define RSP_EXTSTATUS "$EXTSTATUS"
 
 #define INFO_PROCEED "$TX PROCEED\r\n"
 #define INFO_PPSDBG1 "$TX PPSDBG 1\r\n"
@@ -34,11 +35,13 @@ static int cmdBufLen = 0;
 static UART_HandleTypeDef *uart;
 static uint16_t uart_id;
 static uint16_t clockNoPPSDBG = 0;
-
+static int LOCSent = 0;
 static void HandleCommand();
 static void HandlePPSDBG();
 static void HandleStatus();
 static void HandleStatusCode(int code);
+static void HandleExtStatus();
+static void usbTx(char *msg);
 
 void TruePosInit(UART_HandleTypeDef *uartPtr, uint16_t id) {
 	uart = uartPtr;
@@ -55,9 +58,7 @@ void TruePosReadBuffer() {
 				cmdBuf[cmdBufLen] = '\r';
 				cmdBuf[cmdBufLen+1] = '\n';
 				cmdBuf[cmdBufLen+2] = '\0';
-				CDC_Transmit_FS((uint8_t*)cmdBuf,cmdBufLen+2);
-				/*while(CDC_Busy())
-					;*/
+				usbTx(cmdBuf);
 				HandleCommand();
 				cmdBufLen = 0;
 			} else if (cmdBufLen < (CMDBUF_LEN-4)) {
@@ -104,6 +105,8 @@ static void HandleCommand() {
 		HandleStatus();
 	} else if(!strncmp(cmdBuf, RSP_PPSDBG, sizeof(RSP_PPSDBG)-1)) {
 			HandlePPSDBG();
+	} else if(!strncmp(cmdBuf, RSP_EXTSTATUS, sizeof(RSP_EXTSTATUS)-1)) {
+		HandleExtStatus();
 	}
 }
 static void HandlePPSDBG() {
@@ -112,37 +115,52 @@ static void HandlePPSDBG() {
 	char *t;
 	char *saveptr;
 	float VsetF;
-	int32_t Vset;
 	int i=0;
-	int statusCode = 0xFF;
-	char buf2[35];
-	static long cl;
+	//static long cl;
+	if(!LOCSent) {
+		static char* setpos = "$SETPOS 40448445 -86915313 230\r\n";
+		HAL_UART_Transmit(uart,(uint8_t*)setpos,strlen(setpos),50);
+		usbTx(setpos);
+		LOCSent = 1;
+	}
 	t = strtok_r(cmdBuf, " \r\n",&saveptr);
 	while(t != NULL) {
 		switch(i) {
 		case 1:
-			cl = strtol(t,NULL,10);
+			//cl = strtol(t,NULL,10);
 			y=(y+1)%10;
 			break;
 		case 2:
-			statusCode = atoi(t);
-			HandleStatusCode(statusCode);
+			HandleStatusCode(atoi(t));
 			break;
 		case 3:
 			VsetF = strtof(t,NULL);
 			VsetF = VsetF * 6.25e1f; // uV
-			Vset = (int32_t)VsetF;
-			itoa(Vset, buf2, 10);
-			usbTx(buf2);
-			usbTx("\r\n");
 			y=(y+1)%10;
 			break;
 		}
 		i++;
 		t = strtok_r(NULL, " \r\n",&saveptr);
 	}
-	dispState.status = statusCode;
 	displayRequestRefresh();
+}
+static void HandleExtStatus() {
+	clockNoPPSDBG = 0;
+	char *t;
+	char *saveptr;
+	int i=0;
+	t = strtok_r(cmdBuf, " \r\n",&saveptr);
+	while(t != NULL) {
+		switch(i) {
+		case 2: // NSats
+			dispState.NumSats = strtoul(t,NULL,10);
+			break;
+		case 4:
+			dispState.Temp = strtof(t,NULL);
+		}
+		i++;
+		t = strtok_r(NULL, " \r\n",&saveptr);
+	}
 }
 
 static void HandleStatus() {
@@ -164,6 +182,7 @@ static void HandleStatus() {
 	}
 }
 static void HandleStatusCode(int code) {
+	dispState.status = code;
 	if(code==0)
 		HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_RESET);
 	else

@@ -39,11 +39,14 @@ const char* const statusLabels[] = {
 		"PreRecovery 1/2", // 11
 		"PreRecovery 2/2" // 22
 };
-const char* statusPrefix = "Status=";
+#define statusPrefix "Status="
+#define nsatsPrefix "NSats="
+#define tempPrefix "T="
 
 static void RefreshDisplay() {
 	const char *str;
 	char strbuf[20];
+	const int dY = 14;
 	TM_FontDef_t *font = &TM_Font_7x10;
 	TM_SSD1306_Fill(SSD1306_COLOR_BLACK);
 	/* State */
@@ -53,11 +56,30 @@ static void RefreshDisplay() {
     }
     if(str == NULL){
     	strcpy(strbuf,statusPrefix);
-    	itoa(dispState.status,&(strbuf[sizeof(statusPrefix)]),10);
+    	itoa(dispState.status,&(strbuf[sizeof(statusPrefix)-1]),10);
     	str = strbuf;
     }
 	TM_SSD1306_GotoXY(0,0);
 	TM_SSD1306_Puts(str, font, SSD1306_COLOR_WHITE);
+
+	/* NSats */
+	strcpy(strbuf,nsatsPrefix);
+	itoa(dispState.NumSats,&(strbuf[sizeof(nsatsPrefix)-1]),10);
+	TM_SSD1306_GotoXY(0,dY*1);
+	TM_SSD1306_Puts(strbuf, font, SSD1306_COLOR_WHITE);
+	/* Temperature */
+	uint16_t tempI = (uint16_t)(dispState.Temp*100.0);
+	strcpy(strbuf,tempPrefix);
+	itoa(tempI,&(strbuf[sizeof(tempPrefix)-1]),10);
+	int i=strlen(strbuf)-2;
+	if(tempI > 100) {
+		strbuf[i+3] = '\0';
+		strbuf[i+2] = strbuf[i+1];
+		strbuf[i+1] = strbuf[i];
+		strbuf[i] = '.';
+	}
+	TM_SSD1306_GotoXY(0,dY*2);
+	TM_SSD1306_Puts(strbuf, font, SSD1306_COLOR_WHITE);
 	TM_SSD1306_UpdateScreen();
 }
 

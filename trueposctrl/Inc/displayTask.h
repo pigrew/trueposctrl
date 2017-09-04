@@ -10,6 +10,8 @@
 
 typedef struct {
 	__IO int status;
+	__IO uint8_t NumSats;
+	__IO float Temp;
 
 } dispState_struct;
 

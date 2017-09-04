@@ -34,7 +34,7 @@
         // Status [Locked = 0, Recovery = 1, (Forced holdover?)=3, Holdover = 8, StartupA = 10, StartupB = 2, StartupC = 19 
         //        [ (transition from 1 to 0) = (14,15,16,17,18) ] Wait states when transitioning
         //        [ (transition from 0 to 1) = (20,21,22) ]  Wait states when transitioning
-        //
+        //  (6 = locked, but unknown location????)
         //
         // $PPSDBG 1187153266 3 25.28081e3 -253 -6 2 2 0.0
         // 1: same as clock (GPS Time)
