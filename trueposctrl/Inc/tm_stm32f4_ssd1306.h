@@ -235,7 +235,7 @@ char TM_SSD1306_Putc(char ch, TM_FontDef_t* Font, SSD1306_COLOR_t color);
  * @param  color: Color used for drawing. This parameter can be a value of @ref SSD1306_COLOR_t enumeration
  * @retval Zero on success or character value when function failed
  */
-char TM_SSD1306_Puts(char* str, TM_FontDef_t* Font, SSD1306_COLOR_t color);
+char TM_SSD1306_Puts(const char* str, TM_FontDef_t* Font, SSD1306_COLOR_t color);
 
 /**
  * @brief  Draws line on LCD

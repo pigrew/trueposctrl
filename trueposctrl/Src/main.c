@@ -57,8 +57,7 @@
 #include "stddef.h"
 #include "uart_rx.h"
 #include "usbd_cdc_if.h"
-#include "tm_stm32f4_ssd1306.h"
-
+#include "displayTask.h"
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
@@ -166,6 +165,8 @@ int main(void)
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
+  osThreadDef(displayTask, StartDisplayTask, osPriorityBelowNormal, 0, 128);
+  displayTaskHandle = osThreadCreate(osThread(displayTask), NULL);
   /* USER CODE END RTOS_THREADS */
 
   /* USER CODE BEGIN RTOS_QUEUES */
@@ -424,17 +425,6 @@ void StartDefaultTask(void const * argument)
   // Check Vbus
   HAL_GPIO_EXTI_Callback(15);
   // Init display
-  TM_SSD1306_Init();
-	TM_SSD1306_Fill(SSD1306_COLOR_WHITE);
-	TM_SSD1306_UpdateScreen();
-	TM_SSD1306_Fill(SSD1306_COLOR_BLACK);
-	TM_SSD1306_UpdateScreen();
-	TM_SSD1306_DrawFilledCircle(30,30,3,SSD1306_COLOR_WHITE);
-	TM_SSD1306_GotoXY(50,50);
-	//TM_SSD1306_Putc('X', &TM_Font_11x18, SSD1306_COLOR_WHITE);
-	TM_SSD1306_Puts("Hello", &TM_Font_7x10, SSD1306_COLOR_BLACK);
-	//TM_SSD1306_Puts("STM32F4xx", &TM_Font_7x10, SSD1306_COLOR_WHITE)
-	TM_SSD1306_UpdateScreen();
 	/* Update screen, send changes to LCD */
 	/* Infinite loop */
 	for(;;)

@@ -11,11 +11,12 @@
 #include "freertos.h"
 #include "queue.h"
 #include "task.h"
-
 #include "usbd_cdc_if.h"
+#include "usb_device.h"
 
 #include "uart_rx.h"
 #include "main.h"
+#include "displayTask.h"
 
 
 #define RSP_GETPOS "$GETPOS"
@@ -55,8 +56,8 @@ void TruePosReadBuffer() {
 				cmdBuf[cmdBufLen+1] = '\n';
 				cmdBuf[cmdBufLen+2] = '\0';
 				CDC_Transmit_FS((uint8_t*)cmdBuf,cmdBufLen+2);
-				while(CDC_Busy())
-					;
+				/*while(CDC_Busy())
+					;*/
 				HandleCommand();
 				cmdBufLen = 0;
 			} else if (cmdBufLen < (CMDBUF_LEN-4)) {
@@ -74,10 +75,14 @@ void TruePosReadBuffer() {
 }
 
 static void usbTx(char *msg) {
-	size_t len = strlen(msg);
-	CDC_Transmit_FS((uint8_t*)msg,len);
-	while(CDC_Busy())
-		;
+
+ 	size_t len = strlen(msg);
+	uint8_t result = CDC_Transmit_FS((uint8_t*)msg,len);
+	// Wait for completion, if success
+	if (result == USBD_OK){
+		while(CDC_Busy())
+			;
+	}
 }
 
 static void HandleCommand() {
@@ -102,16 +107,23 @@ static void HandleCommand() {
 	}
 }
 static void HandlePPSDBG() {
+	static int y=0;
 	clockNoPPSDBG = 0;
 	char *t;
 	char *saveptr;
 	float VsetF;
 	int32_t Vset;
 	int i=0;
-	int statusCode;
+	int statusCode = 0xFF;
+	char buf2[35];
+	static long cl;
 	t = strtok_r(cmdBuf, " \r\n",&saveptr);
 	while(t != NULL) {
 		switch(i) {
+		case 1:
+			cl = strtol(t,NULL,10);
+			y=(y+1)%10;
+			break;
 		case 2:
 			statusCode = atoi(t);
 			HandleStatusCode(statusCode);
@@ -120,15 +132,17 @@ static void HandlePPSDBG() {
 			VsetF = strtof(t,NULL);
 			VsetF = VsetF * 6.25e1f; // uV
 			Vset = (int32_t)VsetF;
-			char buf2[35];
 			itoa(Vset, buf2, 10);
 			usbTx(buf2);
 			usbTx("\r\n");
+			y=(y+1)%10;
 			break;
 		}
 		i++;
 		t = strtok_r(NULL, " \r\n",&saveptr);
 	}
+	dispState.status = statusCode;
+	displayRequestRefresh();
 }
 
 static void HandleStatus() {
