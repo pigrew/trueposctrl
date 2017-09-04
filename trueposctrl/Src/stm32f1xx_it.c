@@ -43,7 +43,8 @@
 
 /* External variables --------------------------------------------------------*/
 extern PCD_HandleTypeDef hpcd_USB_FS;
-extern UART_HandleTypeDef huart3;
+extern I2C_HandleTypeDef hi2c2;
+extern UART_HandleTypeDef huart2;
 
 extern TIM_HandleTypeDef htim2;
 
@@ -162,6 +163,20 @@ void SysTick_Handler(void)
 /******************************************************************************/
 
 /**
+* @brief This function handles USB high priority or CAN TX interrupts.
+*/
+void USB_HP_CAN1_TX_IRQHandler(void)
+{
+  /* USER CODE BEGIN USB_HP_CAN1_TX_IRQn 0 */
+
+  /* USER CODE END USB_HP_CAN1_TX_IRQn 0 */
+  HAL_PCD_IRQHandler(&hpcd_USB_FS);
+  /* USER CODE BEGIN USB_HP_CAN1_TX_IRQn 1 */
+
+  /* USER CODE END USB_HP_CAN1_TX_IRQn 1 */
+}
+
+/**
 * @brief This function handles USB low priority or CAN RX0 interrupts.
 */
 void USB_LP_CAN1_RX0_IRQHandler(void)
@@ -190,18 +205,46 @@ void TIM2_IRQHandler(void)
 }
 
 /**
-* @brief This function handles USART3 global interrupt.
+* @brief This function handles I2C2 event interrupt.
 */
-void USART3_IRQHandler(void)
+void I2C2_EV_IRQHandler(void)
 {
-  /* USER CODE BEGIN USART3_IRQn 0 */
-	uartHandleRx(3,&huart3);
-	return;
-  /* USER CODE END USART3_IRQn 0 */
-  HAL_UART_IRQHandler(&huart3);
-  /* USER CODE BEGIN USART3_IRQn 1 */
+  /* USER CODE BEGIN I2C2_EV_IRQn 0 */
 
-  /* USER CODE END USART3_IRQn 1 */
+  /* USER CODE END I2C2_EV_IRQn 0 */
+  HAL_I2C_EV_IRQHandler(&hi2c2);
+  /* USER CODE BEGIN I2C2_EV_IRQn 1 */
+
+  /* USER CODE END I2C2_EV_IRQn 1 */
+}
+
+/**
+* @brief This function handles I2C2 error interrupt.
+*/
+void I2C2_ER_IRQHandler(void)
+{
+  /* USER CODE BEGIN I2C2_ER_IRQn 0 */
+
+  /* USER CODE END I2C2_ER_IRQn 0 */
+  HAL_I2C_ER_IRQHandler(&hi2c2);
+  /* USER CODE BEGIN I2C2_ER_IRQn 1 */
+
+  /* USER CODE END I2C2_ER_IRQn 1 */
+}
+
+/**
+* @brief This function handles USART2 global interrupt.
+*/
+void USART2_IRQHandler(void)
+{
+  /* USER CODE BEGIN USART2_IRQn 0 */
+	uartHandleRx(2,&huart2);
+	return;
+  /* USER CODE END USART2_IRQn 0 */
+  HAL_UART_IRQHandler(&huart2);
+  /* USER CODE BEGIN USART2_IRQn 1 */
+
+  /* USER CODE END USART2_IRQn 1 */
 }
 
 /**

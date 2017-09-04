@@ -50,19 +50,23 @@
 #include "stm32f1xx_hal.h"
 #include "cmsis_os.h"
 #include "usb_device.h"
-#include "truepos.h"
+
 /* USER CODE BEGIN Includes */
+#include "truepos.h"
 #include "stdio.h"
 #include "stddef.h"
 #include "uart_rx.h"
 #include "usbd_cdc_if.h"
+#include "tm_stm32f4_ssd1306.h"
 
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
+I2C_HandleTypeDef hi2c2;
+
 RTC_HandleTypeDef hrtc;
 
-UART_HandleTypeDef huart3;
+UART_HandleTypeDef huart2;
 
 osThreadId defaultTaskHandle;
 
@@ -75,7 +79,8 @@ osThreadId defaultTaskHandle;
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_RTC_Init(void);
-static void MX_USART3_UART_Init(void);
+static void MX_I2C2_Init(void);
+static void MX_USART2_UART_Init(void);
 void StartDefaultTask(void const * argument);
 
 /* USER CODE BEGIN PFP */
@@ -125,17 +130,18 @@ int main(void)
   SystemClock_Config();
 
   /* USER CODE BEGIN SysInit */
-  initialise_monitor_handles();
-  puts("Hello world\n");
+  //initialise_monitor_handles();
+  //puts("Hello world\n");
+
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_RTC_Init();
-  MX_USART3_UART_Init();
+  MX_I2C2_Init();
+  MX_USART2_UART_Init();
 
   /* USER CODE BEGIN 2 */
-
   /* USER CODE END 2 */
 
   /* USER CODE BEGIN RTOS_MUTEX */
@@ -160,8 +166,8 @@ int main(void)
   /* USER CODE END RTOS_THREADS */
 
   /* USER CODE BEGIN RTOS_QUEUES */
-  uartRxInit(3, &huart3, 256);
-  TruePosInit(&huart3, 3);
+  uartRxInit(2, &huart2, 256);
+  TruePosInit(&huart2, 2);
   /* USER CODE END RTOS_QUEUES */
  
 
@@ -196,7 +202,7 @@ void SystemClock_Config(void)
   RCC_OscInitStruct.HSIState = RCC_HSI_ON;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
   RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
-  RCC_OscInitStruct.PLL.PLLMUL = RCC_PLL_MUL6;
+  RCC_OscInitStruct.PLL.PLLMUL = RCC_PLL_MUL9;
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
   {
     _Error_Handler(__FILE__, __LINE__);
@@ -211,14 +217,14 @@ void SystemClock_Config(void)
   RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
   RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
 
-  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_1) != HAL_OK)
+  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_2) != HAL_OK)
   {
     _Error_Handler(__FILE__, __LINE__);
   }
 
   PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_RTC|RCC_PERIPHCLK_USB;
   PeriphClkInit.RTCClockSelection = RCC_RTCCLKSOURCE_HSE_DIV128;
-  PeriphClkInit.UsbClockSelection = RCC_USBCLKSOURCE_PLL;
+  PeriphClkInit.UsbClockSelection = RCC_USBCLKSOURCE_PLL_DIV1_5;
   if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
   {
     _Error_Handler(__FILE__, __LINE__);
@@ -234,6 +240,26 @@ void SystemClock_Config(void)
 
   /* SysTick_IRQn interrupt configuration */
   HAL_NVIC_SetPriority(SysTick_IRQn, 15, 0);
+}
+
+/* I2C2 init function */
+static void MX_I2C2_Init(void)
+{
+
+  hi2c2.Instance = I2C2;
+  hi2c2.Init.ClockSpeed = 400000;
+  hi2c2.Init.DutyCycle = I2C_DUTYCYCLE_16_9;
+  hi2c2.Init.OwnAddress1 = 0;
+  hi2c2.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
+  hi2c2.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
+  hi2c2.Init.OwnAddress2 = 0;
+  hi2c2.Init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
+  hi2c2.Init.NoStretchMode = I2C_NOSTRETCH_DISABLE;
+  if (HAL_I2C_Init(&hi2c2) != HAL_OK)
+  {
+    _Error_Handler(__FILE__, __LINE__);
+  }
+
 }
 
 /* RTC init function */
@@ -280,19 +306,19 @@ static void MX_RTC_Init(void)
 
 }
 
-/* USART3 init function */
-static void MX_USART3_UART_Init(void)
+/* USART2 init function */
+static void MX_USART2_UART_Init(void)
 {
 
-  huart3.Instance = USART3;
-  huart3.Init.BaudRate = 9600;
-  huart3.Init.WordLength = UART_WORDLENGTH_8B;
-  huart3.Init.StopBits = UART_STOPBITS_1;
-  huart3.Init.Parity = UART_PARITY_NONE;
-  huart3.Init.Mode = UART_MODE_TX_RX;
-  huart3.Init.HwFlowCtl = UART_HWCONTROL_NONE;
-  huart3.Init.OverSampling = UART_OVERSAMPLING_16;
-  if (HAL_UART_Init(&huart3) != HAL_OK)
+  huart2.Instance = USART2;
+  huart2.Init.BaudRate = 9600;
+  huart2.Init.WordLength = UART_WORDLENGTH_8B;
+  huart2.Init.StopBits = UART_STOPBITS_1;
+  huart2.Init.Parity = UART_PARITY_NONE;
+  huart2.Init.Mode = UART_MODE_TX_RX;
+  huart2.Init.HwFlowCtl = UART_HWCONTROL_NONE;
+  huart2.Init.OverSampling = UART_OVERSAMPLING_16;
+  if (HAL_UART_Init(&huart2) != HAL_OK)
   {
     _Error_Handler(__FILE__, __LINE__);
   }
@@ -328,12 +354,12 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(LED_GPIO_Port, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : PA0 PA1 PA2 PA3 
-                           PA4 PA5 PA6 PA7 
-                           PA8 PA9 PA10 */
-  GPIO_InitStruct.Pin = GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN_2|GPIO_PIN_3 
-                          |GPIO_PIN_4|GPIO_PIN_5|GPIO_PIN_6|GPIO_PIN_7 
-                          |GPIO_PIN_8|GPIO_PIN_9|GPIO_PIN_10;
+  /*Configure GPIO pins : PA0 PA1 PA4 PA5 
+                           PA6 PA7 PA8 PA9 
+                           PA10 */
+  GPIO_InitStruct.Pin = GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN_4|GPIO_PIN_5 
+                          |GPIO_PIN_6|GPIO_PIN_7|GPIO_PIN_8|GPIO_PIN_9 
+                          |GPIO_PIN_10;
   GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
@@ -379,17 +405,26 @@ void StartDefaultTask(void const * argument)
   /* USER CODE BEGIN 5 */
   // Check Vbus
   HAL_GPIO_EXTI_Callback(15);
-	int ledState = 0;
-	char buf[64];
-	int i=0;
-	int stop;
+  // Init display
+  TM_SSD1306_Init();
+	TM_SSD1306_Fill(SSD1306_COLOR_WHITE);
+	TM_SSD1306_UpdateScreen();
+	TM_SSD1306_Fill(SSD1306_COLOR_BLACK);
+	TM_SSD1306_UpdateScreen();
+	TM_SSD1306_DrawFilledCircle(30,30,3,SSD1306_COLOR_WHITE);
+	TM_SSD1306_GotoXY(50,50);
+	//TM_SSD1306_Putc('X', &TM_Font_11x18, SSD1306_COLOR_WHITE);
+	TM_SSD1306_Puts("Hello", &TM_Font_7x10, SSD1306_COLOR_BLACK);
+	//TM_SSD1306_Puts("STM32F4xx", &TM_Font_7x10, SSD1306_COLOR_WHITE)
+	TM_SSD1306_UpdateScreen();
+	/* Update screen, send changes to LCD */
 	/* Infinite loop */
 	for(;;)
 	{
 		TruePosReadBuffer();
 		//ledState = !ledState;
 		//HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, ledState);
-		//osDelay(50);
+		osDelay(50);
 	}
   /* USER CODE END 5 */ 
 }

@@ -1,13 +1,6 @@
-/*
- * truepos.h
- *
- *  Created on: Sep 1, 2017
- *      Author: Nathan
- */
+#ifndef TRUEPOS_H
+#define TRUEPOS_H
 
-#ifndef TRUEPOS_H_
-#define TRUEPOS_H_
-
-
-
-#endif /* TRUEPOS_H_ */
+void TruePosReadBuffer();
+void TruePosInit(UART_HandleTypeDef *uartPtr, uint16_t id);
+#endif

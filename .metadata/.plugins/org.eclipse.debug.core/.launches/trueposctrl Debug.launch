@@ -13,7 +13,7 @@
 <stringAttribute key="fr.ac6.mcu.ide.OPENOCD_NAME" value="&quot;${openstm32_openocd_path}\openocd.exe&quot;"/>
 <stringAttribute key="fr.ac6.mcu.ide.OPENOCD_OTHER_OPTIONS" value=""/>
 <stringAttribute key="fr.ac6.mcu.ide.OPENOCD_SCRIPT" value="${ProjDirPath}\trueposctrl Debug.cfg"/>
-<stringAttribute key="fr.ac6.mcu.ide.OPENOCD_SCRIPT_CHOICE" value="automated"/>
+<stringAttribute key="fr.ac6.mcu.ide.OPENOCD_SCRIPT_CHOICE" value="provided"/>
 <stringAttribute key="fr.ac6.mcu.ide.OPENOCD_SCRIPT_IS_LEGACY" value="false"/>
 <intAttribute key="org.eclipse.cdt.debug.gdbjtag.core.delay" value="3"/>
 <booleanAttribute key="org.eclipse.cdt.debug.gdbjtag.core.doHalt" value="true"/>

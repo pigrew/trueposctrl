@@ -58,6 +58,10 @@
 
 #define LED_Pin GPIO_PIN_13
 #define LED_GPIO_Port GPIOC
+#define SCL_Pin GPIO_PIN_10
+#define SCL_GPIO_Port GPIOB
+#define SDA_Pin GPIO_PIN_11
+#define SDA_GPIO_Port GPIOB
 #define GPIO_USB_VBUS_Pin GPIO_PIN_12
 #define GPIO_USB_VBUS_GPIO_Port GPIOB
 #define GPIO_USB_VBUS_EXTI_IRQn EXTI15_10_IRQn

@@ -3,6 +3,10 @@ Stm32 control program for TruePosition GPSDO
 
 Currently, it only very slightly works.
 
+I'm planning it to use a cheap SSD1306 0.96" OLED display.
+I accidently purchased the I2C model, so that's what the code uses.
+SPI would be better, as it supports much higher data-rates.
+
 Things implemented:
 * Provides a USB CDC interface which mirrors the GPSDO output.
 * Sends the $PROCEED to start up the GPSDO when needed.
@@ -37,13 +41,15 @@ This is targetting a "blue pill" STM32F103C8 board. The board requires a few mod
 | Pin       | Usage           
 | ----------|-------------
 | GND       | GND to Trueposition GND (pin 1 or 3)
-| PB10      | TX to TruePosition UART (pin 2)
-| PB11      | RX from TruePosition UART (pin 4)
+| PA2      | TX to TruePosition UART (pin 2)
+| PA3      | RX from TruePosition UART (pin 4)
 | (PA11)    | USB DN
 | (PA12)    | USB DP
 | (PA13)    | JTAG/SWDIO
 | (PA14)    | JTAG/SWCLK
-| (PA15)    | USB pull-up
+| (PA15)    | USB pull-up (1.5k to D+)
+| PB10 | I2C SCL(use ~2.2k pullup)
+| PB11 | I2C SDA (use ~2.2k pullup)
 | (PB12) | USB VBus
 | (PC13) | Blue pill LED
 | (PC14) | 32 kHz crystal
@@ -51,3 +57,14 @@ This is targetting a "blue pill" STM32F103C8 board. The board requires a few mod
 | (PD0)  | 8 MHz crystal  
 | (PD1)  | 8 MHz crystal  
 | (V33/V5)| Input power to microcontroller board
+
+# Weird issues encountered
+
+The first issue was the availability of serial IO libraries. The provided HAL driver
+couldn't immediately be used because it only supported fixed-length reads and writes.
+The solution was to handle the serial-port interrupt by loading character data into
+a FreeRTOS queue.
+
+The second annoying issue was that I2C wasn't working. The serial port would hang. It
+ended up that I2C1 seems incompatible with the USB CDC implementation. Switching to I2C2
+fixed it.
