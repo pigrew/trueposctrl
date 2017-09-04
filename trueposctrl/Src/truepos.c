@@ -77,9 +77,9 @@ void TruePosReadBuffer() {
 }
 
 static void usbTx(char *msg) {
-	  USBD_CDC_HandleTypeDef *hcdc = (USBD_CDC_HandleTypeDef*)hUsbDeviceFS.pClassData;
+	  //USBD_CDC_HandleTypeDef *hcdc = (USBD_CDC_HandleTypeDef*)hUsbDeviceFS.pClassData;
  	size_t len = strlen(msg);
-	uint8_t result = CDC_Transmit_FS((uint8_t*)msg,len);
+	/*uint8_t result =*/ CDC_Transmit_FS((uint8_t*)msg,len);
 	// Wait for completion, if success
 /*	if (result == USBD_OK){
 		while(CDC_Busy())
@@ -95,7 +95,7 @@ static void HandleCommand() {
 		}
 	} else if(!strncmp(cmdBuf, RSP_CLOCK, sizeof(RSP_CLOCK)-1)) {
 		clockNoPPSDBG++;
-		if(clockNoPPSDBG == 5) {
+		if(clockNoPPSDBG >= 5) {
 			clockNoPPSDBG = 0;
 			usbTx(INFO_PPSDBG1);
 			HAL_UART_Transmit(uart,(uint8_t*)"$PPSDBG 1\r\n",10,50);
@@ -111,7 +111,6 @@ static void HandleCommand() {
 	}
 }
 static void HandlePPSDBG() {
-	static int y=0;
 	clockNoPPSDBG = 0;
 	char *t;
 	char *saveptr;
@@ -127,17 +126,15 @@ static void HandlePPSDBG() {
 	t = strtok_r(cmdBuf, " \r\n",&saveptr);
 	while(t != NULL) {
 		switch(i) {
-		case 1:
+		case 1: // clock
 			//cl = strtol(t,NULL,10);
-			y=(y+1)%10;
 			break;
-		case 2:
+		case 2: // status code
 			HandleStatusCode(atoi(t));
 			break;
-		case 3:
+		case 3: // Vset
 			VsetF = strtof(t,NULL);
-			VsetF = VsetF * 6.25e1f; // uV
-			y=(y+1)%10;
+			dispState.Vset_uV = VsetF * 6.25e1f; // uV
 			break;
 		}
 		i++;
@@ -146,7 +143,6 @@ static void HandlePPSDBG() {
 	displayRequestRefresh();
 }
 static void HandleExtStatus() {
-	clockNoPPSDBG = 0;
 	char *t;
 	char *saveptr;
 	int i=0;
@@ -164,7 +160,6 @@ static void HandleExtStatus() {
 	}
 }
 static void HandleClock() {
-	clockNoPPSDBG = 0;
 	char *t;
 	char *saveptr;
 	int i=0;

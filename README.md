@@ -5,18 +5,24 @@ Currently, it only very slightly works.
 
 I'm planning it to use a cheap SSD1306 0.96" OLED display.
 I accidently purchased the I2C model, so that's what the code uses.
-SPI would be better, as it supports much higher data-rates.
+SPI may be better, as it supports much higher data-rates.
 
 Things implemented:
 * Provides a USB CDC interface which mirrors the GPSDO output.
 * Sends the $PROCEED to start up the GPSDO when needed.
+* Displays (UTC time, number of satellites, board temperature, DAC voltage, lock status) on a screen
+* Automatically enables the PPSDBG (to get tuning voltage)
+* STM32 board's LED shows lock status.
 
 Todo:
 
 * Relay commands from USB to the GPSDO
-* Display info on a screen?
-* LED to show lock status?
-* Automatically enable the PPSDBG (to get tuning voltage)
+* UI for setting location/survey.
+* Use compile-time define for setting timezone + fixed location/survey
+* Display notification (and reset internal state) when the GPSDO stops responding.
+* Display notification of bad antenna. Bad 10 MHz and bad PPS seem less useful?
+* Display survey status.
+* Display holdover duration
 
 # General
 
@@ -66,6 +72,6 @@ couldn't immediately be used because it only supported fixed-length reads and wr
 The solution was to handle the serial-port interrupt by loading character data into
 a FreeRTOS queue.
 
-The second annoying issue was that I2C wasn't working. The serial port would hang. It
-ended up that I2C1 seems incompatible with the USB CDC implementation. Switching to I2C2
-fixed it.
+The second annoying issue was that I2C wasn't working. The serial port would hang. It ended
+up that global variables were being corrupted. I think that the cause was the BOOT0 jumper
+was set to 1. When the bootloader runs, it seems to overwrite globals and make bad things happen.

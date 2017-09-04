@@ -14,6 +14,7 @@ typedef struct {
 	__IO float Temp;
 	__IO uint32_t Clock;
 	__IO uint8_t UTCOffset;
+	__IO float Vset_uV;
 } dispState_struct;
 
 extern dispState_struct dispState;

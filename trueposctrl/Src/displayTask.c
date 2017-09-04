@@ -48,6 +48,7 @@ static void RefreshDisplay() {
 	char strbuf[20];
 	char strbuf2[10];
 	const int dY = 14;
+	int l, i;
 	TM_FontDef_t *font = &TM_Font_7x10;
 	TM_SSD1306_Fill(SSD1306_COLOR_BLACK);
 	/* Clock */
@@ -97,7 +98,7 @@ static void RefreshDisplay() {
 	uint16_t tempI = (uint16_t)(dispState.Temp*100.0);
 	strcpy(strbuf,tempPrefix);
 	itoa(tempI,&(strbuf[sizeof(tempPrefix)-1]),10);
-	int i=strlen(strbuf)-2;
+	i=strlen(strbuf)-2;
 	if(tempI > 100) {
 		strbuf[i+3] = '\0';
 		strbuf[i+2] = strbuf[i+1];
@@ -107,7 +108,17 @@ static void RefreshDisplay() {
 	TM_SSD1306_GotoXY(0,dY*2);
 	TM_SSD1306_Puts(strbuf, font, SSD1306_COLOR_WHITE);
 
-
+	/* Vset */
+	uint32_t vsetI = (uint32_t)(0.1*dispState.Vset_uV);
+	itoa(vsetI,strbuf,10);
+	l = strlen(strbuf);
+	for( i=l; i>=l-5 && i>=0; i--) {
+		strbuf[i+1] = strbuf[i];
+	}
+	strbuf[i+1] = '.';
+	strcat(strbuf, " V");
+	TM_SSD1306_GotoXY(0,dY*3);
+	TM_SSD1306_Puts(strbuf, font, SSD1306_COLOR_WHITE);
 	TM_SSD1306_UpdateScreen();
 }
 
