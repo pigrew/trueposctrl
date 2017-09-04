@@ -18,8 +18,10 @@
  * | along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * |----------------------------------------------------------------------
  */
-#include "freertos.h"
+
+#include "FreeRTOS.h"
 #include "task.h"
+#include "semphr.h"
 #include "tm_stm32f4_ssd1306.h"
 #include "stm32f1xx_hal_i2c.h"
 
@@ -28,24 +30,34 @@
 #define TM_I2C_Init(a,b,c) do {} while(0)
 #define Delayms(x) (vTaskDelay(x/portTICK_PERIOD_MS))
 
+__IO UBaseType_t c = 0;
 /* Write command */
 void  SSD1306_WRITECOMMAND(uint8_t command) {
 	HAL_I2C_Mem_Write(SSD1306_I2C,SSD1306_I2C_ADDR,
 			0x00, I2C_MEMADD_SIZE_8BIT,
 			&command,1,
 			100);
-	osDelay(5);
+	Delayms(5);
+}
+volatile int needSemaphore = 0;
+SemaphoreHandle_t I2CSemaphore = NULL;
+
+void HAL_I2C_MemTxCpltCallback(I2C_HandleTypeDef *hi2c) {
+
+	static BaseType_t xHigherPriorityTaskWoken;
+
+	xSemaphoreGiveFromISR(I2CSemaphore, &xHigherPriorityTaskWoken);
+    portYIELD_FROM_ISR( xHigherPriorityTaskWoken );
+
 }
 void TM_I2C_WriteMulti(I2C_HandleTypeDef *hi2c, uint16_t DevAddress,
 		uint8_t reg, uint8_t *buf, uint16_t count) {
-	HAL_StatusTypeDef status = HAL_I2C_Mem_Write(hi2c, DevAddress,
+	HAL_StatusTypeDef status = HAL_I2C_Mem_Write_DMA(hi2c, DevAddress,
 			reg, I2C_MEMADD_SIZE_8BIT,
-			buf,count,1000);
+			buf,count);
 	if(status != HAL_OK)
 		while(1) ;
-	//while(hi2c->State != HAL_I2C_STATE_READY)
-	//	;
-	osDelay(5);
+	xSemaphoreTake(I2CSemaphore, portMAX_DELAY);
 }
 uint8_t TM_I2C_IsDeviceConnected(I2C_HandleTypeDef *hi2c, uint8_t addr) {
 	HAL_StatusTypeDef ready = HAL_I2C_IsDeviceReady(hi2c, addr, 3, 500);
@@ -70,11 +82,13 @@ typedef struct {
 
 /* Private variable */
 static SSD1306_t SSD1306;
-
 uint8_t TM_SSD1306_Init(void) {
 	/* Init delay */
 	TM_DELAY_Init();
-
+	if(I2CSemaphore == NULL)
+		I2CSemaphore = xSemaphoreCreateBinary();
+	configASSERT( I2CSemaphore );
+	c = uxSemaphoreGetCount(I2CSemaphore);
 	/* Init I2C */
 	TM_I2C_Init(SSD1306_I2C, SSD1306_I2C_PINSPACK, 400000);
 
