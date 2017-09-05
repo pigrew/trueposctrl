@@ -19,36 +19,36 @@ dispState_struct dispState;
 TaskHandle_t  displayTaskHandle;
 
 const char* const statusLabels[] = {
-		"Locked", // 0
-		"Recovery", // 1
-		"StartupB", //2 (Initialization?)
-		"Holdover", //3 (From $SET1PPS?)
-		"Forced H", // 4 (Forced Holdover?)
-		"Soft H", // 5 (Soft Holdover?)
-		"No GPS", // 6
-		"OCXO Tra", // 7 (OCXO Training?)
-		"Holdover", // 8
-		NULL, // 9
-		"StartupA", // 10
-		NULL, // 11
-		NULL, // 12
-		NULL, // 13
-		"WaitA 0/4", // 14
-		"WaitA 1/4", // 15
-		"WaitA 2/4", // 16
-		"WaitA 3/4", // 17
-		"WaitA 4/4", // 18
-		"StartupC", // 19
-		"WaitB 0/2", // 20
-		"WaitB 1/2", // 11
-		"WaitB 2/2" // 22
+		"Locked",NULL, // 0
+		"Recovery",NULL, // 1
+		"Startup","5/5", //2 (Initialization?)
+		"Holdover","(SET1PPS)", //3 (From $SET1PPS?)
+		"Forced","Holdover", // 4 (Forced Holdover?)
+		"Soft","Holdover", // 5 (Soft Holdover?)
+		"Unknown","Location", // 6
+		"OCXO","Training", // 7 (OCXO Training?)
+		"Holdover","Recovery", // 8
+		"Startup","0/5", // 9
+		"Startup","1/5", // 10
+		"Startup","2/5", // 11
+		"Startup","3/5", // 12
+		"Startup","4/5", // 13
+		"Wait A","0/4", // 14
+		"Wait A","1/4", // 15
+		"Wait A","2/4", // 16
+		"Wait A","3/4", // 17
+		"Wait A","4/4", // 18
+		"Wait B","0/3", // 19
+		"Wait B","1/3", // 20
+		"Wait B","2/3", // 11
+		"Wait B","3/3" // 22
 };
 #define statusPrefix "Status="
 #define nsatsPrefix "NSats="
 #define tempPrefix "T="
 
 static void RefreshDisplay() {
-	const char *str;
+	const char *str, *str2;
 	char strbuf[20];
 	char strbuf2[10];
 	const int dY = 13;
@@ -91,19 +91,25 @@ static void RefreshDisplay() {
 
 	/* State */
 	str = NULL;
+	str2 = NULL;
 	if(dispState.statusFlags & SF_STARTUP){
 		str = "Boot";
 	} else if(dispState.status >= 0 && dispState.status <= 22) {
-    	str = statusLabels[dispState.status];
+    	str = statusLabels[2*dispState.status];
     }
-    if(str == NULL){
+	if(str != NULL) {
+		str2 = statusLabels[2*dispState.status + 1];
+	} else {
     	strcpy(strbuf,statusPrefix);
     	itoa(dispState.status,&(strbuf[sizeof(statusPrefix)-1]),10);
     	str = strbuf;
     }
 	TM_SSD1306_GotoXY(128-font->FontWidth*strlen(str)-1,0);
 	TM_SSD1306_Puts(str, font, SSD1306_COLOR_WHITE);
-
+	if(str2 != NULL) {
+		TM_SSD1306_GotoXY(128-font->FontWidth*strlen(str2)-1,dY);
+		TM_SSD1306_Puts(str2, font, SSD1306_COLOR_WHITE);
+	}
 	/* NSats */
 	strcpy(strbuf,nsatsPrefix);
 	itoa(dispState.NumSats,&(strbuf[sizeof(nsatsPrefix)-1]),10);

@@ -27,6 +27,7 @@
 #define RSP_STATUS "$STATUS"
 #define RSP_EXTSTATUS "$EXTSTATUS"
 #define RSP_SURVEY "$SURVEY"
+#define RSP_SETPOS "$SETPOS"
 
 #define INFO_PROCEED "$TX PROCEED\r\n"
 #define INFO_PPSDBG1 "$TX PPSDBG 1\r\n"
@@ -128,6 +129,12 @@ static void HandleCommand() {
 		HandleExtStatusMsg();
 	} else if(!strncmp(cmdBuf, RSP_SURVEY, sizeof(RSP_SURVEY)-1)) {
 		HandleSurveyMsg();
+	}else if(!strncmp(cmdBuf, RSP_SETPOS, sizeof(RSP_SETPOS)-1)) {
+		if(dispState.statusFlags & SF_STARTUP) {
+			ppsdbgReceived = 0;
+			usbTx(INFO_PPSDBG1);
+			HAL_UART_Transmit(uart,(uint8_t*)"$PPSDBG 1\r\n",10,50);
+		}
 	} else if(!strncmp(cmdBuf, RSP_GETVER, sizeof(RSP_GETVER)-1)) {
 		if(strstr(cmdBuf, "BOOT") != NULL) {
 			usbTx(INFO_PROCEED);
