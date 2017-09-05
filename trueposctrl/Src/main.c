@@ -86,7 +86,7 @@ void StartDefaultTask(void const * argument);
 
 /* USER CODE BEGIN PFP */
 /* Private function prototypes -----------------------------------------------*/
-extern void initialise_monitor_handles();
+//extern void initialise_monitor_handles();
 /* USER CODE END PFP */
 
 /* USER CODE BEGIN 0 */

@@ -31,6 +31,7 @@
 
 #define CMDBUF_LEN 128
 char cmdBuf[CMDBUF_LEN];
+static uint8_t ppsdbgReceived = 0;
 static int cmdBufLen = 0;
 static UART_HandleTypeDef *uart;
 static uint16_t uart_id;
@@ -38,10 +39,10 @@ static uint16_t clockNoPPSDBG = 0;
 static int LOCSent = 0;
 static void HandleCommand();
 static void HandlePPSDBG();
-static void HandleStatus();
+static void HandleStatusMsg();
 static void HandleStatusCode(int code);
 static void HandleExtStatus();
-static void HandleClock();
+static void HandleClockMsg();
 static void usbTx(char *msg);
 
 void TruePosInit(UART_HandleTypeDef *uartPtr, uint16_t id) {
@@ -53,7 +54,10 @@ void TruePosReadBuffer() {
 	int stop=0;
 	char x;
 	do {
-		if(xQueueReceive(uartRxGetQueue(uart_id), (uint8_t*)&x, 1500/portTICK_PERIOD_MS  /* ms*/)) {
+		// During boot, messages may be delayed by about 5 seconds.
+		if(xQueueReceive(uartRxGetQueue(uart_id), (uint8_t*)&x,
+				(dispState.statusFlags & STARTUP)?
+						(5500/portTICK_PERIOD_MS):(1500/portTICK_PERIOD_MS)  /* ms*/)) {
 			if(cmdBufLen == 0 && x != '$') {
 			} else if (x == '\r' || x == '\n') {
 				cmdBuf[cmdBufLen] = '\r';
@@ -74,6 +78,7 @@ void TruePosReadBuffer() {
 		} else {
 			stop=1;
 			dispState.statusFlags &= ~GPSDO_CONNECTED;
+			ppsdbgReceived=0;
 			displayRequestRefresh();
 		}
 	} while(!stop);
@@ -81,14 +86,17 @@ void TruePosReadBuffer() {
 }
 
 static void usbTx(char *msg) {
-	  //USBD_CDC_HandleTypeDef *hcdc = (USBD_CDC_HandleTypeDef*)hUsbDeviceFS.pClassData;
- 	size_t len = strlen(msg);
-	/*uint8_t result =*/ CDC_Transmit_FS((uint8_t*)msg,len);
-	// Wait for completion, if success
-/*	if (result == USBD_OK){
-		while(CDC_Busy())
-			;
-	}*/
+	USBD_CDC_HandleTypeDef *hcdc = (USBD_CDC_HandleTypeDef*)hUsbDeviceFS.pClassData;
+	static TickType_t lastXmit = 0;
+	/* If still transmitting, and it has been more than 200 ms, give up */
+	while(hcdc->TxState != 0 && (xTaskGetTickCount()-lastXmit < (200/portTICK_PERIOD_MS ))) {
+
+	}
+
+	size_t len = strlen(msg);
+	uint8_t result = CDC_Transmit_FS((uint8_t*)msg,len);
+	if(result == USBD_OK)
+		lastXmit = xTaskGetTickCount();
 }
 
 static void HandleCommand() {
@@ -96,20 +104,29 @@ static void HandleCommand() {
 		if(strstr(cmdBuf, "BOOT") != NULL) {
 			usbTx(INFO_PROCEED);
 			HAL_UART_Transmit(uart,(uint8_t*)"$PROCEED\r\n",10,50);
+			dispState.statusFlags |= STARTUP;
+			displayRequestRefresh();
 		}
 	} else if(!strncmp(cmdBuf, RSP_CLOCK, sizeof(RSP_CLOCK)-1)) {
+		dispState.statusFlags &= ~STARTUP;
 		clockNoPPSDBG++;
-		if(clockNoPPSDBG >= 5) {
+		if(clockNoPPSDBG >= 3) {
 			clockNoPPSDBG = 0;
+			ppsdbgReceived = 0;
 			usbTx(INFO_PPSDBG1);
 			HAL_UART_Transmit(uart,(uint8_t*)"$PPSDBG 1\r\n",10,50);
-
 		}
-		HandleClock();
+		HandleClockMsg();
+		if(!ppsdbgReceived)
+			displayRequestRefresh();
 	} else if(!strncmp(cmdBuf, RSP_STATUS, sizeof(RSP_STATUS)-1)) {
-		HandleStatus();
+		HandleStatusMsg();
+		if(!ppsdbgReceived)
+			displayRequestRefresh();
 	} else if(!strncmp(cmdBuf, RSP_PPSDBG, sizeof(RSP_PPSDBG)-1)) {
-			HandlePPSDBG();
+		HandlePPSDBG();
+		ppsdbgReceived=1;
+		displayRequestRefresh();
 	} else if(!strncmp(cmdBuf, RSP_EXTSTATUS, sizeof(RSP_EXTSTATUS)-1)) {
 		HandleExtStatus();
 	}
@@ -144,7 +161,6 @@ static void HandlePPSDBG() {
 		i++;
 		t = strtok_r(NULL, " \r\n",&saveptr);
 	}
-	displayRequestRefresh();
 }
 static void HandleExtStatus() {
 	char *t;
@@ -163,7 +179,7 @@ static void HandleExtStatus() {
 		t = strtok_r(NULL, " \r\n",&saveptr);
 	}
 }
-static void HandleClock() {
+static void HandleClockMsg() {
 	char *t;
 	char *saveptr;
 	int i=0;
@@ -182,7 +198,7 @@ static void HandleClock() {
 	}
 }
 
-static void HandleStatus() {
+static void HandleStatusMsg() {
 	clockNoPPSDBG = 0;
 	char *t;
 	char *saveptr;

@@ -4,6 +4,7 @@
  *  Created on: Sep 4, 2017
  *      Author: Nathan
  */
+#include "cmsis_os.h"
 #include "FreeRTOS.h"
 #include "task.h"
 #include "tm_stm32f4_ssd1306.h"
@@ -89,7 +90,9 @@ static void RefreshDisplay() {
 
 	/* State */
 	str = NULL;
-    if(dispState.status >= 0 && dispState.status <= 22) {
+	if(dispState.statusFlags & STARTUP){
+		str = "Boot";
+	} else if(dispState.status >= 0 && dispState.status <= 22) {
     	str = statusLabels[dispState.status];
     }
     if(str == NULL){
