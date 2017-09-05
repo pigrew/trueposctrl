@@ -50,10 +50,10 @@
         // 8: Always 0.0? 
         // 
         // $EXTSTATUS
-        // SurveyStatus [0=normal, 1=surveying]
-        // Number of sats (different than, but within 2 of $STATUS, perhaps only counts channels 0-9, range is 0-10)
-        // DOP (maybe TDOP?)
-        // Temperature (close to FPGA? close to oven?) (my board reads about 45C)
+        // 1: SurveyStatus [0=normal, 1=surveying]
+        // 2: Number of sats (different than, but within 2 of $STATUS, perhaps only counts channels 0-9, range is 0-10)
+        // 3: DOP (maybe TDOP?)
+        // 4: Temperature (close to FPGA? close to oven?) (my board reads about 45C)
         //
         // $GETPOS (sent after setting position, or requesting position
         // Latitude

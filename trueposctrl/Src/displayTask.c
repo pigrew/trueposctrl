@@ -56,7 +56,7 @@ static void RefreshDisplay() {
 	TM_FontDef_t *font = &TM_Font_7x10;
 	TM_SSD1306_Fill(SSD1306_COLOR_BLACK);
 	/* no communication */
-	if(!(dispState.statusFlags & GPSDO_CONNECTED)) {
+	if(!(dispState.statusFlags & SF_GPSDO_CONNECTED)) {
 		TM_SSD1306_GotoXY(64-strlen(NoConnection1)*(font->FontWidth)/2,10);
 		TM_SSD1306_Puts(NoConnection1, font, SSD1306_COLOR_WHITE);
 		TM_SSD1306_GotoXY(64-strlen(NoConnection2)*(font->FontWidth)/2,25);
@@ -91,7 +91,7 @@ static void RefreshDisplay() {
 
 	/* State */
 	str = NULL;
-	if(dispState.statusFlags & STARTUP){
+	if(dispState.statusFlags & SF_STARTUP){
 		str = "Boot";
 	} else if(dispState.status >= 0 && dispState.status <= 22) {
     	str = statusLabels[dispState.status];
@@ -134,10 +134,38 @@ static void RefreshDisplay() {
 	strcat(strbuf, " V");
 	TM_SSD1306_GotoXY(0,dY*3);
 	TM_SSD1306_Puts(strbuf, font, SSD1306_COLOR_WHITE);
-	/* Bad Antenna*/
-	if(dispState.statusFlags & BAD_ANTENNA){
+	/* Bad Antenna, Survey */
+	if(dispState.statusFlags & SF_BAD_ANTENNA){
 		TM_SSD1306_GotoXY(0,dY*4);
 		TM_SSD1306_Puts("Bad Antenna", font, SSD1306_COLOR_WHITE);
+	} else if(dispState.statusFlags & SF_SURVEY) {
+		uint32_t secsRemaining = dispState.SurveyEndClock - dispState.Clock;
+		TM_SSD1306_GotoXY(0,dY*4);
+		TM_SSD1306_Puts("Survey", font, SSD1306_COLOR_WHITE);
+		if(dispState.SurveyEndClock >= dispState.Clock) {
+			TM_SSD1306_Putc('=', font, SSD1306_COLOR_WHITE);
+			if(secsRemaining > (60UL*60UL)) {
+				uint16_t h = secsRemaining/3600;
+				itoa(h,strbuf, 10);
+				TM_SSD1306_Puts(strbuf, font, SSD1306_COLOR_WHITE);
+				TM_SSD1306_Putc(':', font, SSD1306_COLOR_WHITE);
+			}
+			if(secsRemaining > (60UL)) {
+				uint16_t m = (secsRemaining%3600)/60;
+				itoa(m,strbuf, 10);
+				if(strbuf[1] == '\0'){
+					strbuf[2] = strbuf[1]; strbuf[1] = strbuf[0]; strbuf[0] = '0';
+				}
+				TM_SSD1306_Puts(strbuf, font, SSD1306_COLOR_WHITE);
+				TM_SSD1306_Putc(':', font, SSD1306_COLOR_WHITE);
+			}
+			uint16_t s = secsRemaining%60;
+			itoa(s,strbuf, 10);
+			if(strbuf[1] == '\0'){
+				strbuf[2] = strbuf[1]; strbuf[1] = strbuf[0]; strbuf[0] = '0';
+			}
+			TM_SSD1306_Puts(strbuf, font, SSD1306_COLOR_WHITE);
+		}
 	}
 	TM_SSD1306_UpdateScreen();
 }

@@ -9,9 +9,10 @@
 #define DISPLAYTASK_H_
 
 enum {
-	GPSDO_CONNECTED = 1,
-	BAD_ANTENNA = 2,
-	STARTUP = 4,
+	SF_GPSDO_CONNECTED = 1,
+	SF_BAD_ANTENNA = 2,
+	SF_STARTUP = 4,
+	SF_SURVEY = 8
 };
 
 typedef struct {
@@ -22,6 +23,7 @@ typedef struct {
 	__IO uint32_t Clock;
 	__IO uint8_t UTCOffset;
 	__IO float Vset_uV;
+	__IO uint32_t SurveyEndClock;
 } dispState_struct;
 
 extern dispState_struct dispState;
