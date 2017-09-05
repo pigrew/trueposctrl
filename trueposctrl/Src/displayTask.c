@@ -46,7 +46,7 @@ const char* const statusLabels[] = {
 #define statusPrefix "Status="
 #define nsatsPrefix "NSats="
 #define tempPrefix "T="
-
+#define DOP_PREFIX "DOP="
 static void RefreshDisplay() {
 	const char *str, *str2;
 	char strbuf[20];
@@ -115,6 +115,7 @@ static void RefreshDisplay() {
 	itoa(dispState.NumSats,&(strbuf[sizeof(nsatsPrefix)-1]),10);
 	TM_SSD1306_GotoXY(0,dY*1);
 	TM_SSD1306_Puts(strbuf, font, SSD1306_COLOR_WHITE);
+
 	/* Temperature */
 	uint16_t tempI = (uint16_t)(dispState.Temp*100.0);
 	strcpy(strbuf,tempPrefix);
@@ -128,22 +129,54 @@ static void RefreshDisplay() {
 	}
 	TM_SSD1306_GotoXY(0,dY*2);
 	TM_SSD1306_Puts(strbuf, font, SSD1306_COLOR_WHITE);
-
+	/* DOP */
+	if (dispState.DOP != 0) {
+		tempI = (uint16_t)(dispState.DOP*100.0);
+		strcpy(strbuf,DOP_PREFIX);
+		itoa(tempI,&(strbuf[sizeof(DOP_PREFIX)-1]),10);
+		i=strlen(strbuf)-2;
+		if(tempI>100) {
+			strbuf[i+3] = '\0';
+			strbuf[i+2] = strbuf[i+1];
+			strbuf[i+1] = strbuf[i];
+			strbuf[i] = '.';
+		} else if (tempI>10) {
+			strbuf[i+4] = '\0';
+			strbuf[i+3] = strbuf[i+1];
+			strbuf[i+2] = strbuf[i];
+			strbuf[i+1] = '.';
+			strbuf[i] = '0';
+		} else {
+			strbuf[i+5] = '\0';
+			strbuf[i+4] = strbuf[i+1];
+			strbuf[i+3] = strbuf[i];
+			strbuf[i+2] = '0';
+			strbuf[i+2] = '.';
+			strbuf[i] = '0';
+		}
+		TM_SSD1306_GotoXY(127-(font->FontWidth * strlen(strbuf)),dY*2);
+		TM_SSD1306_Puts(strbuf, font, SSD1306_COLOR_WHITE);
+	}
 	/* Vset */
-	uint32_t vsetI = (uint32_t)(0.1*dispState.Vset_uV);
+	uint32_t vsetI = (uint32_t)(dispState.Vset_uV);
 	itoa(vsetI,strbuf,10);
 	l = strlen(strbuf);
-	for( i=l; i>=l-5 && i>=0; i--) {
+	for( i=l; i>=l-6 && i>=0; i--) {
 		strbuf[i+1] = strbuf[i];
 	}
 	strbuf[i+1] = '.';
-	strcat(strbuf, " V");
+	l++;
+	for( i=l; i>=l-3 && i>=0; i--) {
+		strbuf[i+1] = strbuf[i];
+	}
+	strbuf[i+1] = ' ';
 	TM_SSD1306_GotoXY(0,dY*3);
 	TM_SSD1306_Puts(strbuf, font, SSD1306_COLOR_WHITE);
-	/* Bad Antenna, Survey */
+	TM_SSD1306_Puts(" V", font, SSD1306_COLOR_WHITE);
+	/* (Bad Antenna, 10MHz,PPS) or (Survey) */
+	TM_SSD1306_GotoXY(0,dY*4);
+	uint8_t badThings = 0;
 	if(dispState.statusFlags & (SF_BAD_ANTENNA|SF_BAD_10M | SF_BAD_PPS)) {
-		uint8_t badThings = 0;
-		TM_SSD1306_GotoXY(0,dY*4);
 		TM_SSD1306_Puts("Bad ", font, SSD1306_COLOR_WHITE);
 		if (dispState.statusFlags & (SF_BAD_ANTENNA)) {
 			TM_SSD1306_Puts("Antenna", font, SSD1306_COLOR_WHITE);

@@ -25,6 +25,7 @@ typedef struct {
 	__IO uint32_t Clock;
 	__IO uint8_t UTCOffset;
 	__IO float Vset_uV;
+	__IO float DOP;
 	__IO uint32_t SurveyEndClock;
 } dispState_struct;
 

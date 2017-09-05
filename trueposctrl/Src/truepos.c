@@ -147,6 +147,7 @@ static void HandleCommand() {
 			dispState.UTCOffset = 0;
 			dispState.Vset_uV = 0;
 			dispState.status = 0;
+			dispState.DOP = 0.0f;
 			dispState.statusFlags &= ~(SF_BAD_10M | SF_BAD_ANTENNA | SF_BAD_PPS | SF_SURVEY);
 			displayRequestRefresh();
 		}
@@ -200,6 +201,9 @@ static void HandleExtStatusMsg() {
 			break;
 		case 2: // NSats
 			dispState.NumSats = strtoul(t,NULL,10);
+			break;
+		case 3: // DOP
+			dispState.DOP = strtof(t,NULL);
 			break;
 		case 4: // Temperature
 			dispState.Temp = strtof(t,NULL);
