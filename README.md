@@ -1,28 +1,31 @@
 # trueposctrl
 Stm32 control program for TruePosition GPSDO
 
-Currently, it only very slightly works.
+Currently, it mostly works.
 
-I'm planning it to use a cheap SSD1306 0.96" OLED display.
-I accidently purchased the I2C model, so that's what the code uses.
-SPI may be better, as it supports much higher data-rates.
+![Photograph of the blue-pill board with a display showing a locked GPSDO signal](https://raw.githubusercontent.com/wiki/pigrew/trueposctrl/images/TrueposCtrl_sm.jpg)
+
+
+It's designed to use a cheap I<sup>2</sup>C SSD1306 0.96" OLED display.
+SPI may be better, as it supports much higher data-rates so the display lag would be less.
 
 Things implemented:
 * Provides a USB CDC interface which mirrors the GPSDO output.
 * Sends the $PROCEED to start up the GPSDO when needed.
-* Displays (UTC time, number of satellites, board temperature, DAC voltage, lock status) on a screen
-* Automatically enables the PPSDBG (to get tuning voltage)
+* Displays:
+  * UTC time, number of satellites, board temperature, DAC voltage, lock status, and bad antenna
+* Automatically enables the PPSDBG (to get tuning voltage, and more frequent status messages)
 * STM32 board's LED shows lock status.
+* Relays commands from USB to the GPSDO.
+* Displays notification when the GPSDO stops responding.
 
 Todo:
 
-* Relay commands from USB to the GPSDO
-* UI for setting location/survey.
-* Use compile-time define for setting timezone + fixed location/survey
-* Display notification (and reset internal state) when the GPSDO stops responding.
-* Display notification of bad antenna. Bad 10 MHz and bad PPS seem less useful?
+* UI for setting location/survey? Maybe not? A computer can be used via USB to communicate with the GPSDO.
+* Use compile-time define for setting timezone + fixed location/survey.
+* Display notification of bad 10 MHz and bad PPS? Maybe not necessary.
 * Display survey status.
-* Display holdover duration
+* Display holdover duration.
 
 # General
 
@@ -32,40 +35,12 @@ Getting serial-port reads with arbrary length to work seems not well documented 
 
 # Hardware
 
-This is targetting a "blue pill" STM32F103C8 board. The board requires a few modifications:
+See [the wiki hardware page](https://github.com/pigrew/trueposctrl/wiki/Hardware-Details-and-Mods) for details.
 
-1. Cut the 5V track between the USB connector and the tee that goes to Vreg and the 5Vpin, so that the USB Vbus is isolated.
-2. Add a wire between B12 and VBUS (used to detect if the USB port is connected).
-3. Remove the 10k R10 (USB D+ pull-up).
-4. Add a 1.5k pull-up between the R10 D+ pad and A15.
-5. Add more solder + hot-glue to make the USB port stronger.
-6. Double-check through-hole pins. Many were cold-solder joints.
-7. For the OLED display, replace the two 10k pull-up resistors with ~2.2k. These are the two resistors at the center of the board. Leave the 10k next to the capacitors in place.
-8. Solder pin-headers onto the Blue Pill board. I suggest NOT populating the pins that have USB and crystal pins: PA11, PA12, PC14, PC15. 
-9. Power the board either with a 3.3V on the V33 input, or 4-5.2V on the V5 input.
 
-# Pin-mapping
-(parenthesis mark internal board connectons):
+# Software
 
-| Pin       | Usage           
-| ----------|-------------
-| GND       | GND to Trueposition GND (pin 1 or 3)
-| PA2      | TX to TruePosition UART (pin 2)
-| PA3      | RX from TruePosition UART (pin 4)
-| (PA11)    | USB DN
-| (PA12)    | USB DP
-| (PA13)    | JTAG/SWDIO
-| (PA14)    | JTAG/SWCLK
-| (PA15)    | USB pull-up (1.5k to D+)
-| PB10 | I2C SCL(use ~2.2k pullup)
-| PB11 | I2C SDA (use ~2.2k pullup)
-| (PB12) | USB VBus
-| (PC13) | Blue pill LED
-| (PC14) | 32 kHz crystal
-| (PC15) | 32 kHz crystal
-| (PD0)  | 8 MHz crystal  
-| (PD1)  | 8 MHz crystal  
-| (V33/V5)| Input power to microcontroller board
+See [the wiki software page](https://github.com/pigrew/trueposctrl/wiki/Software) for details.
 
 # Weird issues encountered
 
