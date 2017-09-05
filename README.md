@@ -35,7 +35,12 @@ Getting serial-port reads with arbrary length to work seems not well documented 
 
 # Hardware
 
-See [the wiki](https://github.com/pigrew/trueposctrl/wiki/Hardware-Details-Mods) for details.
+See [the wiki hardware page](https://github.com/pigrew/trueposctrl/wiki/Hardware-Details-and-Mods) for details.
+
+
+# Software
+
+See [the wiki software page](https://github.com/pigrew/trueposctrl/wiki/Software) for details.
 
 # Weird issues encountered
 
