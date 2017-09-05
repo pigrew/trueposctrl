@@ -1,7 +1,7 @@
 # trueposctrl
 Stm32 control program for TruePosition GPSDO
 
-[[https://raw.githubusercontent.com/wiki/pigrew/trueposctrl/images/TrueposCtrl_sm.jpg]]
+![Photograph of the blue-pill board with a display showing a locked GPSDO signal](https://raw.githubusercontent.com/wiki/pigrew/trueposctrl/images/TrueposCtrl_sm.jpg)
 
 Currently, it only very mostly works.
 
