@@ -25,10 +25,15 @@
 #include "tm_stm32f4_ssd1306.h"
 #include "stm32f1xx_hal_i2c.h"
 
+#include "main.h"
+
 // Changes to use HAL
 #define TM_DELAY_Init() do {} while(0)
 #define TM_I2C_Init(a,b,c) do {} while(0)
 #define Delayms(x) (vTaskDelay(x/portTICK_PERIOD_MS))
+#if !defined(OLED_INTERNAL_DCDC) && !defined(OLED_EXTERNAL_DCDC)
+#error Must set display to use either the internal or external DCDC in main.h
+#endif
 
 __IO UBaseType_t c = 0;
 /* Write command */
@@ -111,7 +116,11 @@ uint8_t TM_SSD1306_Init(void) {
 	SSD1306_WRITECOMMAND(0x00); //-not offset
 	SSD1306_WRITECOMMAND(0x40); //--set start line address
 	SSD1306_WRITECOMMAND(0x8D); //--set DC-DC enable
+#ifdef OLED_INTERNAL_DCDC
 	SSD1306_WRITECOMMAND(0x14); //
+#elif defined(OLED_EXTERNAL_DCDC)
+	SSD1306_WRITECOMMAND(0x04); //
+#endif
 	SSD1306_WRITECOMMAND(0xA1); //--set segment re-map 0 to 127
 	SSD1306_WRITECOMMAND(0xC8); //Set COM Output Scan Direction
 	SSD1306_WRITECOMMAND(0xDA); //--set com pins hardware configuration
@@ -119,7 +128,11 @@ uint8_t TM_SSD1306_Init(void) {
 	SSD1306_WRITECOMMAND(0x81); //--set contrast control register
 	SSD1306_WRITECOMMAND(0xCF);
 	SSD1306_WRITECOMMAND(0xD9); //--set pre-charge period
+#ifdef OLED_INTERNAL_DCDC
 	SSD1306_WRITECOMMAND(0xF1); //
+#elif defined(OLED_EXTERNAL_DCDC)
+	SSD1306_WRITECOMMAND(0x22); //
+#endif
 	SSD1306_WRITECOMMAND(0xDB); //--set vcomh
 	SSD1306_WRITECOMMAND(0x40); //0x20,0.77xVcc
 	SSD1306_WRITECOMMAND(0xA4); //0xa4,Output follows RAM content;0xa5,Output ignores RAM content

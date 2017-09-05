@@ -72,6 +72,9 @@
 
 #define TP_UART huart2
 #define TP_UART_ID (2)
+
+#define OLED_INTERNAL_DCDC
+// #define OLED_EXTERNAL DCDC
 /* USER CODE END Private defines */
 
 void _Error_Handler(char *, int);

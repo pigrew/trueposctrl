@@ -182,12 +182,13 @@ static void HandleExtStatusMsg() {
 				dispState.statusFlags |= SF_SURVEY;
 			else
 				dispState.statusFlags &= ~SF_SURVEY;
-
+			break;
 		case 2: // NSats
 			dispState.NumSats = strtoul(t,NULL,10);
 			break;
 		case 4: // Temperature
 			dispState.Temp = strtof(t,NULL);
+			break;
 		}
 		i++;
 		t = strtok_r(NULL, " \r\n",&saveptr);
