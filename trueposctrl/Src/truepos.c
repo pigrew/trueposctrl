@@ -140,9 +140,11 @@ static void HandlePPSDBG() {
 	int i=0;
 	//static long cl;
 	if(!LOCSent) {
-		static char* setpos = "$SETPOS 40448445 -86915313 230\r\n";
-		HAL_UART_Transmit(uart,(uint8_t*)setpos,strlen(setpos),50);
+		/*
+		static char* setpos = "$SETPOS X Y Z\r\n";
+		HAL_UART_Transmit(uart,(uint8_t*)setpos,strlen(setpos),100);
 		usbTx(setpos);
+		*/
 		LOCSent = 1;
 	}
 	t = strtok_r(cmdBuf, " \r\n",&saveptr);

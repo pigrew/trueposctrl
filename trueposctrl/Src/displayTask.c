@@ -12,6 +12,7 @@
 
 static const char* Splash1 = "TruePosition GPSDO";
 static const char* Splash2 = "Controller";
+static const char* Splash3 = "KI4BZE";
 static const char* NoConnection1 = "TruePosition GPSDO";
 static const char* NoConnection2 = "NOT DETECTED";
 dispState_struct dispState;
@@ -153,6 +154,8 @@ void StartDisplayTask(void const * argument) {
 	TM_SSD1306_Puts(Splash1, font, SSD1306_COLOR_WHITE);
 	TM_SSD1306_GotoXY(64-strlen(Splash2)*(font->FontWidth)/2,25);
 	TM_SSD1306_Puts(Splash2, font, SSD1306_COLOR_WHITE);
+	TM_SSD1306_GotoXY(64-strlen(Splash3)*(font->FontWidth)/2,63-font->FontHeight);
+	TM_SSD1306_Puts(Splash3, font, SSD1306_COLOR_WHITE);
 	TM_SSD1306_UpdateScreen();
 	/* Leave the splash screen for a moment, just because. */
 	osDelay(1500);
