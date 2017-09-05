@@ -54,10 +54,10 @@ void TruePosReadBuffer() {
 	int stop=0;
 	char x;
 	do {
-		// During boot, messages may be delayed by about 5 seconds.
+		// During boot, messages may be delayed by about 8 seconds.
 		if(xQueueReceive(uartRxGetQueue(uart_id), (uint8_t*)&x,
 				(dispState.statusFlags & STARTUP)?
-						(5500/portTICK_PERIOD_MS):(1500/portTICK_PERIOD_MS)  /* ms*/)) {
+						(8000/portTICK_PERIOD_MS):(1500/portTICK_PERIOD_MS)  /* ms*/)) {
 			if(cmdBufLen == 0 && x != '$') {
 			} else if (x == '\r' || x == '\n') {
 				cmdBuf[cmdBufLen] = '\r';
