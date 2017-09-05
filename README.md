@@ -3,6 +3,8 @@ Stm32 control program for TruePosition GPSDO
 
 Currently, it mostly works.
 
+![Screenshot of survey mode](https://raw.githubusercontent.com/wiki/pigrew/trueposctrl/images/screen_survey.jpg)
+
 ![Photograph of the blue-pill board with a display showing a locked GPSDO signal](https://raw.githubusercontent.com/wiki/pigrew/trueposctrl/images/TrueposCtrl_sm.jpg)
 
 
