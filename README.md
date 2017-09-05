@@ -41,6 +41,8 @@ This is targetting a "blue pill" STM32F103C8 board. The board requires a few mod
 5. Add more solder + hot-glue to make the USB port stronger.
 6. Double-check through-hole pins. Many were cold-solder joints.
 7. For the OLED display, replace the two 10k pull-up resistors with ~2.2k. These are the two resistors at the center of the board. Leave the 10k next to the capacitors in place.
+8. Solder pin-headers onto the Blue Pill board. I suggest NOT populating the pins that have USB and crystal pins: PA11, PA12, PC14, PC15. 
+9. Power the board either with a 3.3V on the V33 input, or 4-5.2V on the V5 input.
 
 # Pin-mapping
 (parenthesis mark internal board connectons):
