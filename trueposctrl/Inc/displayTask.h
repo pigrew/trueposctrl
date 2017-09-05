@@ -11,7 +11,7 @@
 enum {
 	GPSDO_CONNECTED = 1,
 	BAD_ANTENNA = 2,
-	STARTUP = 2,
+	STARTUP = 4,
 };
 
 typedef struct {

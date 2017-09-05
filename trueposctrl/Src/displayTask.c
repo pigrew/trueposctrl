@@ -50,7 +50,7 @@ static void RefreshDisplay() {
 	const char *str;
 	char strbuf[20];
 	char strbuf2[10];
-	const int dY = 14;
+	const int dY = 13;
 	int l, i;
 	TM_FontDef_t *font = &TM_Font_7x10;
 	TM_SSD1306_Fill(SSD1306_COLOR_BLACK);
