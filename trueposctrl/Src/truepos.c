@@ -178,10 +178,10 @@ static void HandleExtStatusMsg() {
 	while(t != NULL) {
 		switch(i) {
 		case 1: // survey?
-			if(t[0] == '0')
-				dispState.statusFlags &= ~SF_SURVEY;
-			else
+			if(t[0] != '0')
 				dispState.statusFlags |= SF_SURVEY;
+			else
+				dispState.statusFlags &= ~SF_SURVEY;
 
 		case 2: // NSats
 			dispState.NumSats = strtoul(t,NULL,10);
@@ -237,9 +237,20 @@ static void HandleStatusMsg() {
 	t = strtok_r(cmdBuf, " \r\n",&saveptr);
 	while(t != NULL) {
 		switch(i) {
+		case 1: // bad 10MHZ
+			if(t[0] != '0')
+				dispState.statusFlags |= SF_BAD_10M;
+			else
+				dispState.statusFlags &= ~SF_BAD_10M;
+			break;
+		case 2: // bad antenna
+			if(t[0] != '0')
+				dispState.statusFlags |= SF_BAD_PPS;
+			else
+				dispState.statusFlags &= ~SF_BAD_PPS;
+			break;
 		case 3: // bad antenna
-			x = atoi(t);
-			if(x)
+			if(t[0] != '0')
 				dispState.statusFlags |= SF_BAD_ANTENNA;
 			else
 				dispState.statusFlags &= ~SF_BAD_ANTENNA;

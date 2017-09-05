@@ -135,9 +135,26 @@ static void RefreshDisplay() {
 	TM_SSD1306_GotoXY(0,dY*3);
 	TM_SSD1306_Puts(strbuf, font, SSD1306_COLOR_WHITE);
 	/* Bad Antenna, Survey */
-	if(dispState.statusFlags & SF_BAD_ANTENNA){
+	if(dispState.statusFlags & (SF_BAD_ANTENNA|SF_BAD_10M | SF_BAD_PPS)) {
+		uint8_t badThings = 0;
 		TM_SSD1306_GotoXY(0,dY*4);
-		TM_SSD1306_Puts("Bad Antenna", font, SSD1306_COLOR_WHITE);
+		TM_SSD1306_Puts("Bad ", font, SSD1306_COLOR_WHITE);
+		if (dispState.statusFlags & (SF_BAD_ANTENNA)) {
+			TM_SSD1306_Puts("Antenna", font, SSD1306_COLOR_WHITE);
+			badThings++;
+		}
+		if (dispState.statusFlags & (SF_BAD_10M)) {
+			if(badThings)
+				TM_SSD1306_Putc(',', font, SSD1306_COLOR_WHITE);
+			TM_SSD1306_Puts("10M", font, SSD1306_COLOR_WHITE);
+			badThings++;
+		}
+		if (dispState.statusFlags & (SF_BAD_PPS)) {
+			if(badThings)
+				TM_SSD1306_Putc(',', font, SSD1306_COLOR_WHITE);
+			TM_SSD1306_Puts("PPS", font, SSD1306_COLOR_WHITE);
+			badThings++;
+		}
 	} else if(dispState.statusFlags & SF_SURVEY) {
 		uint32_t secsRemaining = dispState.SurveyEndClock - dispState.Clock;
 		TM_SSD1306_GotoXY(0,dY*4);

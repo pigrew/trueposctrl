@@ -13,7 +13,7 @@ Things implemented:
 * Provides a USB CDC interface which mirrors the GPSDO output.
 * Sends the $PROCEED to start up the GPSDO when needed.
 * Displays:
-  * UTC time, number of satellites, board temperature, DAC voltage, lock status, bad antenna, and survey remaining time
+  * UTC time, number of satellites, board temperature, DAC voltage, lock status, bad antenna, bad 10MHz, bad PPS, and survey remaining time
 * Automatically enables the PPSDBG (to get tuning voltage, and more frequent status messages)
 * STM32 board's LED shows lock status.
 * Relays commands from USB to the GPSDO.
@@ -23,8 +23,7 @@ Todo:
 
 * UI for setting location/survey? Maybe not? A computer can be used via USB to communicate with the GPSDO.
 * Use compile-time define for setting timezone + fixed location/survey.
-* Display notification of bad 10 MHz and bad PPS? Maybe not necessary.
-* Display holdover duration.
+* Display holdover duration or how long since last holdover?.
 
 # General
 

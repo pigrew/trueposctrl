@@ -12,7 +12,9 @@ enum {
 	SF_GPSDO_CONNECTED = 1,
 	SF_BAD_ANTENNA = 2,
 	SF_STARTUP = 4,
-	SF_SURVEY = 8
+	SF_SURVEY = 8,
+	SF_BAD_10M = 16,
+	SF_BAD_PPS = 32
 };
 
 typedef struct {
