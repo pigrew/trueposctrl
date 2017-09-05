@@ -1,13 +1,13 @@
 # trueposctrl
 Stm32 control program for TruePosition GPSDO
 
+Currently, it mostly works.
+
 ![Photograph of the blue-pill board with a display showing a locked GPSDO signal](https://raw.githubusercontent.com/wiki/pigrew/trueposctrl/images/TrueposCtrl_sm.jpg)
 
-Currently, it only very mostly works.
 
-I'm planning it to use a cheap SSD1306 0.96" OLED display.
-I accidently purchased the I2C model, so that's what the code uses.
-SPI may be better, as it supports much higher data-rates.
+It's designed to use a cheap I<sup>2</sup>C SSD1306 0.96" OLED display.
+SPI may be better, as it supports much higher data-rates so the display lag would be less.
 
 Things implemented:
 * Provides a USB CDC interface which mirrors the GPSDO output.
