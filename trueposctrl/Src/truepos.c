@@ -133,6 +133,14 @@ static void HandleCommand() {
 			usbTx(INFO_PROCEED);
 			HAL_UART_Transmit(uart,(uint8_t*)"$PROCEED\r\n",10,50);
 			dispState.statusFlags |= SF_STARTUP;
+			dispState.Clock = 0;
+			dispState.NumSats = 0;
+			dispState.SurveyEndClock = 0;
+			dispState.Temp = 0;
+			dispState.UTCOffset = 0;
+			dispState.Vset_uV = 0;
+			dispState.status = 0;
+			dispState.statusFlags &= ~(SF_BAD_10M | SF_BAD_ANTENNA | SF_BAD_PPS | SF_SURVEY);
 			displayRequestRefresh();
 		}
 	}

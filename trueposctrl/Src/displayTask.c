@@ -22,7 +22,7 @@ const char* const statusLabels[] = {
 		"Locked", // 0
 		"Recovery", // 1
 		"StartupB", //2 (Initialization?)
-		"Holdover", //3
+		"Holdover", //3 (From $SET1PPS?)
 		"Forced H", // 4 (Forced Holdover?)
 		"Soft H", // 5 (Soft Holdover?)
 		"No GPS", // 6

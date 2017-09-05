@@ -3,26 +3,28 @@
         // 
         // $PROCEED [Send at startup to get past the bootloader]
         //
-        // $GETVER [returns version info]
-        // $GETDELAY [returns cable delay, nanoseconds]
-        // $SETDELAY <n> [-32768 <= n <= 32767Set cable delay, nanoseconds]
-        // $GETBDELAY [returns board delay, nanoseconds]
-        // $SETBDELAY <n> [-32 <= n <= 32, Set board delay, PPS4 units (roughly 5 or 6 ns). PPS4 is controlled to equal this value]
-        // $SURVEY <n> [survey for n hours, default is 8]
-        // $GETPOS [return position ]
-        // $SETPOS <n> <n> <n> [set position to Lat/Long/Elevation_MSL, send value returned by survey]
-        // $GETSCALEFACTOR [Returns a float, such as 3.742106e-3]
-        // $RESET [Unit software reset]
-        // $PPSDBG <0|1> [Enable or disable timing information every second]
         // $FACT [Factory preset]
+        // $GETBDELAY [returns board delay, nanoseconds]
+        // $GETDELAY [returns cable delay, nanoseconds]
+        // $GETPOS [return position ]
+        // $GETSCALEFACTOR [Returns a float, such as 3.742106e-3]
+        // $GETVER [returns version info]
         // $KALDBG <0|1> [Enable reporting of Kalman filter parameters]
+        // $PPSDBG <0|1> [Enable or disable timing information every second]
+        // $RESET [Unit software reset]
+        // $SETBDELAY <n> [-32 <= n <= 32, Set board delay, PPS4 units (roughly 5 or 6 ns). PPS4 is controlled to equal this value]
+        // $SETDELAY <n> [-32768 <= n <= 32767Set cable delay, nanoseconds]
+        // $SETPOS <n> <n> <n> [set position to Lat/Long/Elevation_MSL, send value returned by survey]
+        // $SURVEY <n> [survey for n hours, default is 8]
+		// $TRAINOXCO [Start OXCO Training. This restarts the board ($PROCEED needed), and measures freq
+		//			    change with 500 ADC count]
         // $UPDATE FLASH [update flash memory settings]
         //
         // Other unknown commands:
         // $GETA [returns -1; Attenuator?]
         // $GETP [returns -1 255; Potentiometer?]
         // $SET1PPS  ["$SET1PPS 0"/"$SET1PPS 1"] seems to go to a manual holdover mode, and status changes to 3]
-        //           [Usually con't leave this mode except by $RESET]
+        //           [Seems to return to normal a few minutes after "$SET1PPS 1 1"???  (Status goes 8,16,17,18,0]
         //
 
         // Messages:
@@ -30,9 +32,10 @@
         // 1: (Maybe 10 MHz bad, based on packrat docs)
         // 2: (Maybe PPS bad, based on packrat docs)
         // 3: Antenna is bad? 0=good
-        // Status [Locked = 0, Recovery = 1, (Forced holdover?)=3, Holdover = 8, StartupA = 10, StartupB = 2, StartupC = 19 
         // 4: Holdover duration (secs)
         // 5: Number of sats tracked (different than, but within 2 of $EXTSTATUS, perhaps only counts channels 0-7???, range is 0-8)
+        // Status [Locked = 0, Recovery = 1, (Forced holdover?)=3, Train OXCO=7, Holdover = 8,
+		//        [Startup A/B/C/D = 10/11/2/19 ]
         //        [ (transition from 1 to 0) = (14,15,16,17,18) ] Wait states when transitioning
         //        [ (transition from 0 to 1) = (20,21,22) ]  Wait states when transitioning
         //  (6 = locked, but unknown location????)
