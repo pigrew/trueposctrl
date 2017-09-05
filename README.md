@@ -1,7 +1,7 @@
 # trueposctrl
 Stm32 control program for TruePosition GPSDO
 
-[[Photos/TrueposCtrl_sm.jpg]]
+[[https://raw.githubusercontent.com/wiki/pigrew/trueposctrl/images/TrueposCtrl_sm.jpg]]
 
 Currently, it only very mostly works.
 
