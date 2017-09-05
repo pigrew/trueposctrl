@@ -1,7 +1,9 @@
 # trueposctrl
 Stm32 control program for TruePosition GPSDO
 
-Currently, it only very slightly works.
+[[Photos/TrueposCtrl_sm.jpg]]
+
+Currently, it only very mostly works.
 
 I'm planning it to use a cheap SSD1306 0.96" OLED display.
 I accidently purchased the I2C model, so that's what the code uses.
