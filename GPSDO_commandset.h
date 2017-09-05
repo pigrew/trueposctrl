@@ -11,6 +11,7 @@
         // $SURVEY <n> [survey for n hours, default is 8]
         // $GETPOS [return position ]
         // $SETPOS <n> <n> <n> [set position to Lat/Long/Elevation_MSL, send value returned by survey]
+        // $GETSCALEFACTOR [Returns a float, such as 3.742106e-3]
         // $RESET [Unit software reset]
         // $PPSDBG <0|1> [Enable or disable timing information every second]
         // $FACT [Factory preset]

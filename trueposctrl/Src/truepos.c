@@ -91,7 +91,9 @@ static void usbTx(char *msg) {
 	while(CDC_Busy() && (xTaskGetTickCount()-lastXmit < (200/portTICK_PERIOD_MS ))) {
 		osDelay(1);
 	}
-
+	// Last transmission failed, so lets skip this one.
+	if(CDC_Busy())
+		return;
 	size_t len = strlen(msg);
 	uint8_t result = CDC_Transmit_FS((uint8_t*)msg,len);
 	if(result == USBD_OK)
