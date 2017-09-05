@@ -20,12 +20,12 @@ TaskHandle_t  displayTaskHandle;
 const char* const statusLabels[] = {
 		"Locked", // 0
 		"Recovery", // 1
-		"StartupB", //2
+		"StartupB", //2 (Initialization?)
 		"Holdover", //3
-		NULL, // 4
-		NULL, // 5
-		NULL, // 6
-		NULL, // 7
+		"Forced H", // 4 (Forced Holdover?)
+		"Soft H", // 5 (Soft Holdover?)
+		"No GPS", // 6
+		"OCXO Tra", // 7 (OCXO Training?)
 		"Holdover", // 8
 		NULL, // 9
 		"StartupA", // 10
@@ -133,6 +133,11 @@ static void RefreshDisplay() {
 	strcat(strbuf, " V");
 	TM_SSD1306_GotoXY(0,dY*3);
 	TM_SSD1306_Puts(strbuf, font, SSD1306_COLOR_WHITE);
+	/* Bad Antenna*/
+	if(dispState.statusFlags & BAD_ANTENNA){
+		TM_SSD1306_GotoXY(0,dY*4);
+		TM_SSD1306_Puts("Bad Antenna", font, SSD1306_COLOR_WHITE);
+	}
 	TM_SSD1306_UpdateScreen();
 }
 

@@ -26,12 +26,12 @@
 
         // Messages:
         // $STATUS 
-        // (Maybe 10 MHz bad, based on packrat docs)
-        // (Maybe PPS bad, based on packrat docs)
-        // Antenna is bad? 0=good
-        // Holdover duration (secs)
-        // Number of sats tracked (different than, but within 2 of $EXTSTATUS, perhaps only counts channels 0-7???, range is 0-8)
+        // 1: (Maybe 10 MHz bad, based on packrat docs)
+        // 2: (Maybe PPS bad, based on packrat docs)
+        // 3: Antenna is bad? 0=good
         // Status [Locked = 0, Recovery = 1, (Forced holdover?)=3, Holdover = 8, StartupA = 10, StartupB = 2, StartupC = 19 
+        // 4: Holdover duration (secs)
+        // 5: Number of sats tracked (different than, but within 2 of $EXTSTATUS, perhaps only counts channels 0-7???, range is 0-8)
         //        [ (transition from 1 to 0) = (14,15,16,17,18) ] Wait states when transitioning
         //        [ (transition from 0 to 1) = (20,21,22) ]  Wait states when transitioning
         //  (6 = locked, but unknown location????)

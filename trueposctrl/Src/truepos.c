@@ -40,7 +40,7 @@ static int LOCSent = 0;
 static void HandleCommand();
 static void HandlePPSDBG();
 static void HandleStatusMsg();
-static void HandleStatusCode(int code);
+static void HandleStatusCode(uint8_t code);
 static void HandleExtStatus();
 static void HandleClockMsg();
 static void usbTx(char *msg);
@@ -202,21 +202,28 @@ static void HandleStatusMsg() {
 	clockNoPPSDBG = 0;
 	char *t;
 	char *saveptr;
-	int statusCode;
+	uint8_t x;
 	int i=0;
 	t = strtok_r(cmdBuf, " \r\n",&saveptr);
 	while(t != NULL) {
 		switch(i) {
+		case 3: // bad antenna
+			x = atoi(t);
+			if(x)
+				dispState.statusFlags |= BAD_ANTENNA;
+			else
+				dispState.statusFlags &= ~BAD_ANTENNA;
+			break;
 		case 6:
-			statusCode = atoi(t);
-			HandleStatusCode(statusCode);
+			x = atoi(t);
+			HandleStatusCode(x);
 			break;
 		}
 		i++;
 		t = strtok_r(NULL, " \r\n",&saveptr);
 	}
 }
-static void HandleStatusCode(int code) {
+static void HandleStatusCode(uint8_t code) {
 	dispState.status = code;
 	if(code==0)
 		HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_RESET);
