@@ -86,11 +86,10 @@ void TruePosReadBuffer() {
 }
 
 static void usbTx(char *msg) {
-	USBD_CDC_HandleTypeDef *hcdc = (USBD_CDC_HandleTypeDef*)hUsbDeviceFS.pClassData;
 	static TickType_t lastXmit = 0;
 	/* If still transmitting, and it has been more than 200 ms, give up */
-	while(hcdc->TxState != 0 && (xTaskGetTickCount()-lastXmit < (200/portTICK_PERIOD_MS ))) {
-
+	while(CDC_Busy() && (xTaskGetTickCount()-lastXmit < (200/portTICK_PERIOD_MS ))) {
+		osDelay(1);
 	}
 
 	size_t len = strlen(msg);

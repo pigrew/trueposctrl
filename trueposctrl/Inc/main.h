@@ -70,6 +70,8 @@
 
 /* USER CODE BEGIN Private defines */
 
+#define TP_UART huart2
+#define TP_UART_ID (2)
 /* USER CODE END Private defines */
 
 void _Error_Handler(char *, int);

@@ -170,8 +170,8 @@ int main(void)
   /* USER CODE END RTOS_THREADS */
 
   /* USER CODE BEGIN RTOS_QUEUES */
-  uartRxInit(2, &huart2, 256);
-  TruePosInit(&huart2, 2);
+  uartRxInit(2, &TP_UART, 256);
+  TruePosInit(&TP_UART, TP_UART_ID);
   /* USER CODE END RTOS_QUEUES */
  
 
