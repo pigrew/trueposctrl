@@ -47,6 +47,54 @@ const char* const statusLabels[] = {
 #define nsatsPrefix "NSats="
 #define tempPrefix "T="
 #define DOP_PREFIX "DOP="
+
+static void formatDuration(uint32_t totalSec, char *result, uint8_t maxChars) {
+	int i=0;
+	uint16_t secs = totalSec % 60;
+	totalSec /= 60;
+	uint16_t mins = totalSec % 60;
+	totalSec /= 60;
+	uint16_t hours = totalSec % 24;
+	uint16_t days = totalSec / 24;
+	int tooLong = 0;
+	int prefixZeros = 0;
+	if(mins>0 || hours > 0 || days > 0) {
+		if(hours > 0 || days > 0) {
+			if(days > 0) {
+				itoa(days,&(result[i]),10);
+				i = strlen(result);
+				result[i++] = 'd';
+				prefixZeros = 1;
+			}
+			tooLong = tooLong || (i+3 > maxChars);
+			if(!tooLong) {
+				if(hours<10 && prefixZeros)
+					result[i++]='0';
+				itoa(hours,&(result[i]),10);
+				i = strlen(result);
+				result[i++] = 'h';
+				prefixZeros = 1;
+			}
+		}
+		tooLong = tooLong || (i+3 > maxChars);
+		if(!tooLong) {
+			if(mins<10 && prefixZeros)
+				result[i++]='0';
+			itoa(mins,&(result[i]),10);
+			i = strlen(result);
+			result[i++] = 'm';
+			prefixZeros= 1;
+		}
+	}
+	tooLong = tooLong || (i+2 > maxChars);
+	if(!tooLong) {
+		if(secs<10 && prefixZeros)
+			result[i++]='0';
+		itoa(secs,&(result[i]),10);
+		i = strlen(result);
+	}
+	result[i++] = '\0';
+}
 static void RefreshDisplay() {
 	const char *str, *str2;
 	char strbuf[20];
@@ -109,6 +157,14 @@ static void RefreshDisplay() {
 	if(str2 != NULL) {
 		TM_SSD1306_GotoXY(128-font->FontWidth*strlen(str2)-1,dY);
 		TM_SSD1306_Puts(str2, font, SSD1306_COLOR_WHITE);
+	}
+	/* Time locked*/
+	if(dispState.status == 0 && dispState.LockStartClock != 0 &&
+			dispState.Clock >= dispState.LockStartClock) {
+		uint32_t lockSpan = dispState.Clock-dispState.LockStartClock;
+		formatDuration(lockSpan, strbuf,9);
+		TM_SSD1306_GotoXY(128-font->FontWidth*strlen(strbuf)-1,dY);
+		TM_SSD1306_Puts(strbuf, font, SSD1306_COLOR_WHITE);
 	}
 	/* NSats */
 	strcpy(strbuf,nsatsPrefix);
@@ -200,26 +256,9 @@ static void RefreshDisplay() {
 		TM_SSD1306_Puts("Survey", font, SSD1306_COLOR_WHITE);
 		if(dispState.SurveyEndClock >= dispState.Clock) {
 			TM_SSD1306_Putc('=', font, SSD1306_COLOR_WHITE);
-			if(secsRemaining > (60UL*60UL)) {
-				uint16_t h = secsRemaining/3600;
-				itoa(h,strbuf, 10);
-				TM_SSD1306_Puts(strbuf, font, SSD1306_COLOR_WHITE);
-				TM_SSD1306_Putc(':', font, SSD1306_COLOR_WHITE);
-			}
-			if(secsRemaining > (60UL)) {
-				uint16_t m = (secsRemaining%3600)/60;
-				itoa(m,strbuf, 10);
-				if(strbuf[1] == '\0'){
-					strbuf[2] = strbuf[1]; strbuf[1] = strbuf[0]; strbuf[0] = '0';
-				}
-				TM_SSD1306_Puts(strbuf, font, SSD1306_COLOR_WHITE);
-				TM_SSD1306_Putc(':', font, SSD1306_COLOR_WHITE);
-			}
-			uint16_t s = secsRemaining%60;
-			itoa(s,strbuf, 10);
-			if(strbuf[1] == '\0'){
-				strbuf[2] = strbuf[1]; strbuf[1] = strbuf[0]; strbuf[0] = '0';
-			}
+
+			formatDuration(secsRemaining, strbuf,11);
+
 			TM_SSD1306_Puts(strbuf, font, SSD1306_COLOR_WHITE);
 		}
 	}

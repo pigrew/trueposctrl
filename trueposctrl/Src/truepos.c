@@ -286,9 +286,13 @@ static void HandleStatusMsg() {
 }
 static void HandleStatusCode(uint8_t code) {
 	dispState.status = code;
-	if(code==0)
+	if(code==0) {
 		HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_RESET);
-	else
+		if(dispState.LockStartClock == 0)
+			dispState.LockStartClock = dispState.Clock;
+	}else {
 		HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_SET);
+		dispState.LockStartClock = 0;
+	}
 }
 
