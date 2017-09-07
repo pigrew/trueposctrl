@@ -7,7 +7,7 @@
         // $GETBDELAY [returns board delay, nanoseconds]
         // $GETDELAY [returns cable delay, nanoseconds]
         // $GETPOS [return position ]
-        // $GETSCALEFACTOR [Returns a float, such as 3.742106e-3] 
+        // $GETSCALEFACTOR [Returns a float, such as 3.742106e-3. Value is crystal's gain in Hz/mV.] 
         // $GETVER [returns version info]
         // $KALDBG <0|1> [Enable reporting of Kalman filter parameters]
         // $PPSDBG <0|1> [Enable or disable timing information every second]
@@ -17,7 +17,7 @@
         // $SETPOS <n> <n> <n> [set position to Lat/Long/Elevation_MSL, send value returned by survey]
         // $SURVEY <n> [survey for n hours, default is 8]
         // $TRAINOXCO [Start OXCO Training. This restarts the board ($PROCEED needed), and measures freq
-        //			    change with 500 ADC count]
+        //			    change with 500 ADC count. See result with $GETSCALINGFACTOR.]
         // $UPDATE FLASH [update flash memory settings]
         //
         // Other unknown commands:
