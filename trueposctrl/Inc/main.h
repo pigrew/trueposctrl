@@ -73,6 +73,8 @@
 #define TP_UART huart2
 #define TP_UART_ID (2)
 
+#define DISP_UNKNOWN_RESPONSES
+
 #define OLED_INTERNAL_DCDC
 // #define OLED_EXTERNAL DCDC
 /* USER CODE END Private defines */

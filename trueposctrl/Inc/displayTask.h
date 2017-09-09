@@ -17,6 +17,8 @@ enum {
 	SF_BAD_PPS = 32
 };
 
+#define LastMsg_LEN (60)
+
 typedef struct {
 	__IO uint8_t statusFlags;
 	__IO uint8_t status;
@@ -28,6 +30,7 @@ typedef struct {
 	__IO float DOP;
 	__IO uint32_t SurveyEndClock;
 	__IO uint32_t LockStartClock;
+	char LastMsg[LastMsg_LEN];
 } dispState_struct;
 
 extern dispState_struct dispState;

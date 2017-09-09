@@ -252,7 +252,6 @@ static void RefreshDisplay() {
 		}
 	} else if(dispState.statusFlags & SF_SURVEY) {
 		uint32_t secsRemaining = dispState.SurveyEndClock - dispState.Clock;
-		TM_SSD1306_GotoXY(0,dY*4);
 		TM_SSD1306_Puts("Survey", font, SSD1306_COLOR_WHITE);
 		if(dispState.SurveyEndClock >= dispState.Clock) {
 			TM_SSD1306_Putc('=', font, SSD1306_COLOR_WHITE);
@@ -261,6 +260,19 @@ static void RefreshDisplay() {
 
 			TM_SSD1306_Puts(strbuf, font, SSD1306_COLOR_WHITE);
 		}
+	} else {
+#ifdef DISP_UNKNOWN_RESPONSES
+		static uint8_t cmdBufI;
+		uint16_t W = 128 / font->FontWidth;
+		uint16_t numPages;
+		uint16_t l = strlen(dispState.LastMsg);
+		if(l == 0)
+			numPages = 1;
+		else
+			numPages = 1 + (strlen(dispState.LastMsg)-1) / W;
+		cmdBufI = (cmdBufI + 1) % numPages;
+		TM_SSD1306_Puts(&dispState.LastMsg[cmdBufI*W], font, SSD1306_COLOR_WHITE);
+#endif
 	}
 	TM_SSD1306_UpdateScreen();
 }

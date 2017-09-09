@@ -28,6 +28,9 @@
 #define RSP_EXTSTATUS "$EXTSTATUS"
 #define RSP_SURVEY "$SURVEY"
 #define RSP_SETPOS "$SETPOS"
+#define RSP_KALDBG "$KALDBG"
+#define RSP_SAT "$SAT"
+#define RSP_WSAT "$WSAT"
 
 #define INFO_PROCEED "$TX PROCEED\r\n"
 #define INFO_PPSDBG1 "$TX PPSDBG 1\r\n"
@@ -150,6 +153,19 @@ static void HandleCommand() {
 			dispState.DOP = 0.0f;
 			dispState.statusFlags &= ~(SF_BAD_10M | SF_BAD_ANTENNA | SF_BAD_PPS | SF_SURVEY);
 			displayRequestRefresh();
+		}
+	} else if(!strncmp(cmdBuf, RSP_KALDBG, sizeof(RSP_KALDBG)-1)) {
+	} else if(!strncmp(cmdBuf, RSP_SAT, sizeof(RSP_SAT)-1)) {
+	} else if(!strncmp(cmdBuf, RSP_WSAT, sizeof(RSP_WSAT)-1)) {
+	} else {
+		// Need to ALWAYS let a \0 be at the end, due to multithreading
+		strncpy(dispState.LastMsg, cmdBuf, LastMsg_LEN-1);
+		dispState.LastMsg[LastMsg_LEN-1] = '\0';
+		dispState.LastMsg[LastMsg_LEN-2] = '\0';
+		int16_t i = strlen(dispState.LastMsg)-1;
+		while(i>=0 && (dispState.LastMsg[i] == '\r' || dispState.LastMsg[i] == '\n')) {
+			dispState.LastMsg[i] = '\0';
+			i--;
 		}
 	}
 }
