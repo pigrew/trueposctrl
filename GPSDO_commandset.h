@@ -25,6 +25,7 @@
         // $GETP [returns -1 255; Potentiometer?]
         // $SET1PPS  ["$SET1PPS 0"/"$SET1PPS 1"] seems to go to a manual holdover mode, and status changes to 3]
         //           [Seems to return to normal a few minutes after "$SET1PPS 1 1"???  (Status goes 8,16,17,18,0]
+        // $SETGAIN [<n>] [Returns GAIN parameter, if no parameter is given, default is 0. Parameter is in hundreths.]
         //
 
         // Messages:
