@@ -25,7 +25,7 @@
         // $GETP [returns -1 255; Potentiometer?]
         // $SET1PPS  ["$SET1PPS 0"/"$SET1PPS 1"] seems to go to a manual holdover mode, and status changes to 3]
         //           [Seems to return to normal a few minutes after "$SET1PPS 1 1"???  (Status goes 8,16,17,18,0]
-        // $SETGAIN [<n>] [Returns GAIN parameter, if no parameter is given, default is 0. Parameter is in hundreths.]
+        // $SETGAIN <n> [Sets gain Parameter, n is integer, in hundreths. Maybe a multiplication factor for the DAC adjustment.]
         //
 
         // Messages:
@@ -102,6 +102,10 @@
         // 
         // $SET1PPS
         // [Sent at boot, but also in response to a $SET1PPS command. Sent every 20 seconds.]
+        //
+		// $SETGAIN 1.00
+		// [Sent is response to $SETGAIN <n> command]
+        // 1: Value of gain. This should be n/100, and is a float.
         // 
         // $KALDBG 1187203779 0.08 29.59241e3 0.120e-3 0.568 0 0
         // [Only be sent when reference is locked (state=0)]
