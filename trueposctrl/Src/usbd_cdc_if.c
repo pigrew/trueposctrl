@@ -51,6 +51,8 @@
 /* USER CODE BEGIN INCLUDE */
 #include "stm32f1xx_hal_uart.h"
 #include "stm32f1xx_hal_dma.h"
+#include "freertos.h"
+#include "task.h"
 #include "main.h"
 /* USER CODE END INCLUDE */
 
@@ -79,7 +81,7 @@
 /* Define size for the receive and transmit buffer over CDC */
 /* It's up to user to redefine and/or remove those define */
 #define APP_RX_DATA_SIZE  65
-#define APP_TX_DATA_SIZE  4
+#define APP_TX_DATA_SIZE  65
 /* USER CODE END PRIVATE_DEFINES */
 /**
   * @}
@@ -300,7 +302,9 @@ uint8_t CDC_Transmit_FS(uint8_t* Buf, uint16_t Len)
 	if (hcdc->TxState != 0){
 		return USBD_BUSY;
 	}
-	USBD_CDC_SetTxBuffer(&hUsbDeviceFS, Buf, Len);
+	configASSERT(Len > 0 && Len < 63);
+	memcpy(UserTxBufferFS, Buf, Len);
+	USBD_CDC_SetTxBuffer(&hUsbDeviceFS, UserTxBufferFS, Len);
 	result = USBD_CDC_TransmitPacket(&hUsbDeviceFS);
   /* USER CODE END 7 */ 
   return result;
