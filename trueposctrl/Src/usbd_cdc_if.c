@@ -302,6 +302,7 @@ uint8_t CDC_Transmit_FS(uint8_t* Buf, uint16_t Len)
 	if (hcdc->TxState != 0){
 		return USBD_BUSY;
 	}
+	// I've read that lengths of 64 can confuse Windows, as it interprets it as a reset.
 	configASSERT(Len > 0 && Len < 63);
 	memcpy(UserTxBufferFS, Buf, Len);
 	USBD_CDC_SetTxBuffer(&hUsbDeviceFS, UserTxBufferFS, Len);
