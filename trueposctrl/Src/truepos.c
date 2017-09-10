@@ -8,7 +8,7 @@
 #include <string.h>
 
 #include <stm32f103xb.h>
-#include "freertos.h"
+#include "FreeRTOS.h"
 #include "cmsis_os.h"
 #include "queue.h"
 #include "task.h"

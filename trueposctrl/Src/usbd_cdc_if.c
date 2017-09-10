@@ -51,7 +51,7 @@
 /* USER CODE BEGIN INCLUDE */
 #include "stm32f1xx_hal_uart.h"
 #include "stm32f1xx_hal_dma.h"
-#include "freertos.h"
+#include "FreeRTOS.h"
 #include "task.h"
 #include "main.h"
 /* USER CODE END INCLUDE */
