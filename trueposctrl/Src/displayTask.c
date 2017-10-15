@@ -40,7 +40,7 @@ const char* const statusLabels[] = {
 		"Wait A","4/4", // 18
 		"Wait B","0/3", // 19
 		"Wait B","1/3", // 20
-		"Wait B","2/3", // 11
+		"Wait B","2/3", // 21
 		"Wait B","3/3" // 22
 };
 #define statusPrefix "Status="
