@@ -8,6 +8,7 @@
 #include "FreeRTOS.h"
 #include "task.h"
 #include "tm_stm32f4_ssd1306.h"
+#include "tm_stm32f4_fonts.h"
 #include "displayTask.h"
 
 static const char* Splash1 = "TruePosition GPSDO";

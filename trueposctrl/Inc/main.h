@@ -87,6 +87,10 @@
 
 #define OLED_INTERNAL_DCDC
 // #define OLED_EXTERNAL DCDC
+
+#define OLED_SH1106
+//#define OLED_SSD1306
+
 /* USER CODE END Private defines */
 
 #ifdef __cplusplus

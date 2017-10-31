@@ -112,7 +112,11 @@ SDA        |PC9          |Serial data line
  * @brief    Library defines
  * @{
  */
-
+/* SPI Settings */
+extern SPI_HandleTypeDef hspi1;
+#define SSD1306_SPI             &hspi1
+#define SSD1306_DC_Port (SPI1_DC_GPIO_Port)
+#define SSD1306_DC_Pin (SPI1_DC_Pin)
 /* I2C settings */
 extern I2C_HandleTypeDef hi2c2;
 #ifndef SSD1306_I2C

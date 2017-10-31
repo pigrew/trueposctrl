@@ -9,15 +9,6 @@
 
 <filestoremove>
 	<file>
-	   		<name>..\Src\main.c</name>
-	   		<name>..\Src\freertos.c</name>
-	   		<name>..\Src\usb_device.c</name>
-	   		<name>..\Src\usbd_conf.c</name>
-	   		<name>..\Src\usbd_desc.c</name>
-	   		<name>..\Src\usbd_cdc_if.c</name>
-	   		<name>..\Src\stm32f1xx_it.c</name>
-	   		<name>..\Src\stm32f1xx_hal_msp.c</name>
-	   		<name>..\Src\stm32f1xx_hal_timebase_TIM.c</name>
 	</file>
 </filestoremove>
 
