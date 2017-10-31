@@ -102,7 +102,7 @@ const uint8_t DISP_INIT[] = {
 		0xDA, //--set com pins hardware configuration
 		0x12,
 		0x81, //--set contrast control register
-		0xBF,
+		0x60,
 		0xD9, //--set pre-charge period
 		0x22, //
 		0xDB, //--set vcomh
