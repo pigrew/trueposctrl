@@ -31,7 +31,8 @@
 #define MODE_I2C (0)
 #define MODE_SPI (1)
 
-static uint8_t mode = MODE_SPI;
+// Default to I2C, switch to SPI if things don't work.
+static uint8_t mode = MODE_I2C;
 
 // Changes to use HAL
 #define TM_DELAY_Init() do {} while(0)
@@ -41,6 +42,8 @@ static uint8_t mode = MODE_SPI;
 #error Must set display to use either the internal or external DCDC in main.h
 #endif
 #if defined(OLED_SSD1306)
+#define OLED_LOWER_START_COL (0x00)
+#define OLED_UPPER_START_COL (0x10)
 const uint8_t DISP_INIT[] = {
 	0xAE, //display off
 	0xD5, //--set display clock divide ratio/oscillator frequency
@@ -75,11 +78,13 @@ const uint8_t DISP_INIT[] = {
 	0x20, //Set Memory Addressing Mode
 	0x10, //00,Horizontal Addressing Mode;01,Vertical Addressing Mode;10,Page Addressing Mode (RESET);11,Invalid
 	0xB0, //Set Page Start Address for Page Addressing Mode,0-7
-	0x00, //---set low column address
-	0x10 //---set high column address
+	OLED_LOWER_START_COL, //---set low column address
+	OLED_UPPER_START_COL //---set high column address
 };
 #elif defined(OLED_SH1106)
 // Initialization commands from https://www.displaymodule.com/products/dm-oled13-625
+#define OLED_LOWER_START_COL (0x02)
+#define OLED_UPPER_START_COL (0x10)
 
 const uint8_t DISP_INIT[] = {
 
@@ -106,8 +111,8 @@ const uint8_t DISP_INIT[] = {
 		0xA6, //--set normal display (not inverted)
 
 		// And extra commands:
-		0x02, //---set low column address
-		0x10, //---set high column address
+		OLED_LOWER_START_COL, //---set low column address
+		OLED_UPPER_START_COL, //---set high column address
 
 		0xB0 //Set Page Start Address for Page Addressing Mode,0-7
 
@@ -253,8 +258,8 @@ void TM_SSD1306_UpdateScreen(void) {
 
 	for (m = 0; m < 8; m++) {
 		SSD1306_WRITECOMMAND(0xB0 + m); // Page m
-		//SSD1306_WRITECOMMAND(0x00);     // lower start col 0x00
-		//SSD1306_WRITECOMMAND(0x10);     // upper start col 0x00
+		SSD1306_WRITECOMMAND(OLED_LOWER_START_COL);     // lower start col 0x00
+		SSD1306_WRITECOMMAND(OLED_UPPER_START_COL);     // upper start col 0x00
 
 		/* Write multi data */
 		SSD1306_WRITEDATA(&SSD1306_Buffer[SSD1306_WIDTH * m], SSD1306_WIDTH);
