@@ -82,40 +82,54 @@ const uint8_t DISP_INIT[] = {
 // Initialization commands from https://www.displaymodule.com/products/dm-oled13-625
 
 const uint8_t DISP_INIT[] = {
-	0xAE, //display off
 
-	0xD5, //--set display clock divide ratio/oscillator frequency
-	0x80, // (+15%) (divide by 1)
-	0xA8, //--set multiplex ratio(1 to 64)
-	0x3F, // (64)
-	0xD3, //--set display offset
-	0x00, //--no offset
-	0x40, //--set start line address
-	0xAD, //--Set charge pump
-	0x8b, //
-	0xA1, //--set segment re-map 0 to 127
-	0xC8, //Set COM Output Scan Direction
-	0xDA, //--set com pins hardware configuration
-	0x12,
-	0x81, //--set contrast control register
-	0xBF,
-	0xD9, //--set pre-charge period
-	0x22, //
-	0xDB, //--set vcomh
-	0x40, //0x20,0.77xVcc
-	0x32, //-- 8.0 V
-	0xA6, //--set normal display (not inverted)
+		0xD5, //--set display clock divide ratio/oscillator frequency
+		0x80, // (+15%) (divide by 1)
+		0xA8, //--set multiplex ratio(1 to 64)
+		0x3F, // (64)
+		0xD3, //--set display offset
+		0x00, //--no offset
+		0x40, //--set start line address
+		0xAD, //--Set charge pump
+		0x8b, //
+		0xA1, //--set segment re-map 0 to 127
+		0xC8, //Set COM Output Scan Direction
+		0xDA, //--set com pins hardware configuration
+		0x12,
+		0x81, //--set contrast control register
+		0xBF,
+		0xD9, //--set pre-charge period
+		0x22, //
+		0xDB, //--set vcomh
+		0x40, //0x20,0.77xVcc
+		0x32, //-- 8.0 V
+		0xA6, //--set normal display (not inverted)
 
-	// And extra commands:
-	0x02, //---set low column address
-	0x10, //---set high column address
+		// And extra commands:
+		0x02, //---set low column address
+		0x10, //---set high column address
 
-	0xB0 //Set Page Start Address for Page Addressing Mode,0-7
+		0xB0 //Set Page Start Address for Page Addressing Mode,0-7
+
 };
 
 #endif
 
+SemaphoreHandle_t I2CSemaphore = NULL;
 __IO UBaseType_t c = 0;
+// SPI stuff
+void HAL_SPI_TxCpltCallback(SPI_HandleTypeDef *hspi) {
+	HAL_GPIO_WritePin(SSD_1306_SPI_NSS_Port,SSD_1306_SPI_NSS_Pin,GPIO_PIN_SET);
+	static BaseType_t xHigherPriorityTaskWoken;
+	xSemaphoreGiveFromISR(I2CSemaphore, &xHigherPriorityTaskWoken);
+    portYIELD_FROM_ISR( xHigherPriorityTaskWoken );
+}
+static void WriteSPIByte(uint8_t x) {
+	HAL_GPIO_WritePin(SSD_1306_SPI_NSS_Port,SSD_1306_SPI_NSS_Pin,GPIO_PIN_RESET);
+	HAL_SPI_Transmit_IT(SSD1306_SPI,&x,1);
+	xSemaphoreTake(I2CSemaphore, portMAX_DELAY);
+}
+
 /* Write command */
 void  SSD1306_WRITECOMMAND(uint8_t command) {
 	switch(mode) {
@@ -127,13 +141,11 @@ void  SSD1306_WRITECOMMAND(uint8_t command) {
 		break;
 	case MODE_SPI:
 		HAL_GPIO_WritePin(SSD1306_DC_Port,SSD1306_DC_Pin,GPIO_PIN_RESET);
-		HAL_SPI_Transmit(SSD1306_SPI,&command,1,100);
+		WriteSPIByte(command);
 		break;
 	}
 	Delayms(5);
 }
-volatile int needSemaphore = 0;
-SemaphoreHandle_t I2CSemaphore = NULL;
 
 void HAL_I2C_MemTxCpltCallback(I2C_HandleTypeDef *hi2c) {
 
@@ -159,7 +171,9 @@ void SSD1306_WRITEDATA(uint8_t *buf, uint16_t count) {
 		break;
 	case MODE_SPI:
 		HAL_GPIO_WritePin(SSD1306_DC_Port,SSD1306_DC_Pin,GPIO_PIN_SET);
-		HAL_SPI_Transmit(SSD1306_SPI,buf,count,1000);
+		for(int i=0; i<count; i++) {
+			WriteSPIByte(buf[i]);
+		}
 		break;
 	}
 
@@ -201,6 +215,10 @@ uint8_t TM_SSD1306_Init(void) {
 	if (!TM_I2C_IsDeviceConnected(SSD1306_I2C, SSD1306_I2C_ADDR)) {
 		/* Default to SPI */
 		mode = MODE_SPI;
+		/* And reset the display.... */
+		HAL_GPIO_WritePin(SSD1306_DC_Port,SSD1306_DC_Pin,GPIO_PIN_RESET);
+		Delayms(100);
+		HAL_GPIO_WritePin(SPI1_nRST_GPIO_Port,SPI1_nRST_Pin,GPIO_PIN_SET);
 	}
 
 	/* A little delay */
@@ -212,7 +230,7 @@ uint8_t TM_SSD1306_Init(void) {
 	}
 
 	/* Clear screen */
-	TM_SSD1306_Fill(SSD1306_COLOR_BLACK);
+	//TM_SSD1306_Fill(SSD1306_COLOR_BLACK);
 
 	/* Update screen */
 	TM_SSD1306_UpdateScreen();
@@ -235,8 +253,8 @@ void TM_SSD1306_UpdateScreen(void) {
 
 	for (m = 0; m < 8; m++) {
 		SSD1306_WRITECOMMAND(0xB0 + m); // Page m
-		SSD1306_WRITECOMMAND(0x00);     // lower start col 0x00
-		SSD1306_WRITECOMMAND(0x10);     // upper start col 0x00
+		//SSD1306_WRITECOMMAND(0x00);     // lower start col 0x00
+		//SSD1306_WRITECOMMAND(0x10);     // upper start col 0x00
 
 		/* Write multi data */
 		SSD1306_WRITEDATA(&SSD1306_Buffer[SSD1306_WIDTH * m], SSD1306_WIDTH);

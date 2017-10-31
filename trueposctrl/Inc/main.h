@@ -59,8 +59,12 @@
 
 #define LED_Pin GPIO_PIN_13
 #define LED_GPIO_Port GPIOC
+#define SPI1_NSS_Pin GPIO_PIN_4
+#define SPI1_NSS_GPIO_Port GPIOA
 #define SPI1_DC_Pin GPIO_PIN_6
 #define SPI1_DC_GPIO_Port GPIOA
+#define SPI1_nRST_Pin GPIO_PIN_0
+#define SPI1_nRST_GPIO_Port GPIOB
 #define SCL_Pin GPIO_PIN_10
 #define SCL_GPIO_Port GPIOB
 #define SDA_Pin GPIO_PIN_11

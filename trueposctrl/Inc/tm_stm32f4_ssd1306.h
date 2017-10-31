@@ -115,6 +115,9 @@ SDA        |PC9          |Serial data line
 /* SPI Settings */
 extern SPI_HandleTypeDef hspi1;
 #define SSD1306_SPI             &hspi1
+#define SSD_1306_SPI_NSS_Port (SPI1_NSS_GPIO_Port)
+#define SSD_1306_SPI_NSS_Pin (SPI1_NSS_Pin)
+
 #define SSD1306_DC_Port (SPI1_DC_GPIO_Port)
 #define SSD1306_DC_Pin (SPI1_DC_Pin)
 /* I2C settings */
