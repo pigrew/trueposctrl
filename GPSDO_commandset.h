@@ -42,6 +42,7 @@
         //  (6 = locked, but unknown location????)
         //
         // $PPSDBG 1187153266 3 25.28081e3 -253 -6 2 2 0.0
+        // $PPSDBG 2 0.0 [Fewer parmaters when in holdover?]
         // 1: same as clock (GPS Time)
         // 2: Same as $STATUS status, but updates much more often (and seems to skip states less often)
         // 3: Floating point number. Output voltage. Tends towards 29e3 on my board. Proportional to the DAC voltage
