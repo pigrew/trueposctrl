@@ -45,14 +45,14 @@
         // $PPSDBG 2 0.0 [Fewer parmaters when in holdover?]
         // 1: same as clock (GPS Time)
         // 2: Same as $STATUS status, but updates much more often (and seems to skip states less often)
-        // 3: Floating point number. Output voltage. Tends towards 29e3 on my board. Proportional to the DAC voltage
+        // 3: Floating point number. DAC set value. Tends towards 29e3 on my board. Proportional to the DAC voltage
         //         On my RevC CTS board, Vbias ~= 6.25e-5*PPS3. This may make sense for a 4.096 V reference: 4.096/2^16=6.25e-5
         //         During startup, it is not put in the result string (this field is blank, so two sequential space characters are in the string)
         // 4: Measured phase offset? Units seem something like 6.5*ns
-        // 5: Looks like a saw-tooth between -15 and 15 (or so). Perhaps the quantization error reported by the GPS module?
-        // 6: Normally 0, but sometimes 2 (related to holdover/startup?)
-        // 7: Normally 0, but sometimes 1 or 2 (related to holdover/startup?)
-        // 8: Always 0.0? 
+        // 5: PPS offset from $PFEC,GPrrm message - range from -15 to +14
+        // 6: PPS status from $PFEC,GPrrm message
+        // 7: TRAIM status from $PFEC,GPrrm message 
+        // 8: Always 0.0 - temperature on 12.1.1 firmware
         // 
         // $EXTSTATUS
         // 1: SurveyStatus [0=normal, 1=surveying]
@@ -65,7 +65,7 @@
         // Longitude
         // Elevation_MSL
         // Correction to MSL to get WGS elevation (add this value to MSL to get WGS ellipsoid)
-        // Status flag [(Normal?)=0 on 196 board or =2 on Bliley board, Surveying=3], or maybe a FOM?
+        // Traim status from GPS. From Furuno GPrrm msg (0 = possible to detect and remove abnormalities, 1 = possible to detect, 2 = not possible to detect) 
         //
         // $SURVEY 40448488 -86915296 225 -34 7129
         // [sent during a survey]
@@ -118,5 +118,46 @@
         //     Resets to 0 at time of lock (and at end of holdover).
         // 5: Floating point. Smoothed version of PPS3, seems like ~6.5*(PPS phase in ns)?
         //     Resets to 0 at time of lock (and at end of holdover).
-        // 6: Flag, always zero?
-        // 7: Flag, always zero?
+        // 6: always zero
+        // 7: always zero
+        //
+        // $ESN xxx
+        // programs serial number to xxx
+        //
+        // $RESET
+        // reboot gpsdo into bootloader
+        //
+        // $REPORT
+        // reports all SAT and WSAT messages stored in mcu
+        //
+        // $SETINTG num
+        // sets something, integrator ?
+        //
+        // $SETOFFSET num
+        // sets DAC offset - this is not persistent, and will not survive reboot
+        //
+        // $SPIW num
+        // writes num into DAC - manual osc tunning ? (probably needs manual holdover)
+        //
+        // -------- messages to communicate with GPS receiver:
+        //
+        // $EBG *
+        // copy all messages from GPS port to communication port
+        //
+        // $Fxxx
+        // sends nmea message to GPS
+        // xxx needs to start with $ (eg: $F$PFEC....)
+        //
+        // $ELOAD - gps firmware loading ... dont bother
+        // $AGP - agps load
+        //
+        // ---- other debug commands:
+        // $EBG x - engine debug 0 = disable *=all?
+        // $XBG x - console clone (whatever that is)
+        // $RBG x - raw debug
+        // $CBG x - command debug
+        // last 3 debugs are only for jtag uart, they dont change output
+        //
+        // 2 unknown commands:
+        // $FxRxxH - if state == 0 set state = 4, else if state == 4 set state = 20. Holdover testing?
+        // $FxRxxU - something with leap second, but i havent noticed difference
