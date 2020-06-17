@@ -13,22 +13,84 @@
         // $PPSDBG <0|1> [Enable or disable timing information every second]
         // $RESET [Unit software reset]
         // $SETBDELAY <n> [-32 <= n <= 32, Set board delay, PPS4 units (roughly 5 or 6 ns). PPS4 is controlled to equal this value]
-        // $SETDELAY <n> [-32768 <= n <= 32767Set cable delay, nanoseconds]
+				//
+        // $SETDELAY <n> [-9999 <= n <= +9999 Set cable delay, 0.1us unit (100ns)]
+				// Writes 1PPS correction to furuno using $PFEC,GPset,t-%06d
+				//
         // $SETPOS <n> <n> <n> [set position to Lat/Long/Elevation_MSL, send value returned by survey]
-        // $SURVEY <n> [survey for n hours, default is 8]
+        // $SURVEY <n> [survey for n hours, default is 8, 1<=n<=49]
         // $TRAINOXCO [Start OXCO Training. This restarts the board ($PROCEED needed), and measures freq
         //			    change with 500 ADC count. See result with $GETSCALINGFACTOR.]
-        // $UPDATE FLASH [update flash memory settings]
+				//			    this executes $FACT command.
         //
         // Other unknown commands:
         // $GETA [returns -1; Attenuator?]
         // $GETP [returns -1 255; Potentiometer?]
-        // $SET1PPS  ["$SET1PPS 0"/"$SET1PPS 1"] seems to go to a manual holdover mode, and status changes to 3]
-        //           [Seems to return to normal a few minutes after "$SET1PPS 1 1"???  (Status goes 8,16,17,18,0]
+				//
+        // $SET1PPS x y
+				// This formats GPrrs message for Furuno - $PFEC,GPrrs,x,100,y
+				// x - 0 = traim off, 1 = traim on
+				// y - 0-nopps output, 1-always output pps, 2-output in ordinary way, 3 - output only when sufficient satellites are tracked
+				// Internally they use "$SET1PPS 1 1" and "$SET1PPS 1 3"
+				//
         // $SETGAIN <n> [Sets gain Parameter, n is integer, in hundreths. Maybe a multiplication factor for the DAC adjustment.]
         //
+        // $ESN xxx
+        // programs serial number to xxx
+        //
+        // $REPORT [x [y [z]]]
+				// set reporting time (optional)
+				// x - time report period (in sec), this controls $CLOCK message
+				// y - sat report (on/off), control sending of $SAT, $WSAT
+				// z - state report period (in sec), $STATUS and $EXTSTATUS
+				// reports all SAT and WSAT messages stored in mcu if reporting enabled
+        //
+        // $SETINTG num
+        // sets integrator ?
+        //
+        // $SETOFFSET num
+        // sets DAC offset - this is not persistent, and will not survive reboot
+        //
+        // $SPIW num
+        // writes num into DAC - manual osc tunning ? (probably needs manual holdover)
+				//
+        // $FxRxxH
+				// if state == 0 set state = 4
+				// else if state == 4 set state = 20.
+				// Toggle forced holdover
+				//
+        // $FxRxxU
+				// get leap second from config saved in flash, when no leap second from GPS is available
+				//
+				// $JAM
+				// Jam sync - whatever that means
+        //
+        // -------- messages to communicate with GPS receiver:
+        //
+        // $EBG *
+        // copy all messages from GPS port to communication port (0 to turn off)
+        //
+        // $Fxxx
+        // sends nmea message to GPS
+        // xxx needs to start with $ (eg: $F$PFEC....)
+        //
+        // $ELOAD - gps firmware loading ... dont bother
+        // $AGP - agps load
+        //
+        // ---- other debug commands:
+        // $EBG x - engine debug 0 = disable *=all?
+        // $XBG x - console clone (whatever that is)
+        // $RBG x - raw debug
+        // $CBG x - command debug
+        // last 3 debugs are only for jtag uart, they dont change output for comm port
+        //
+        // unknown commands:
+				// $TRAIM x - disables traim evaluation in gpsdo? 0 - skips some computation internally
 
-        // Messages:
+        // Response Messages:
+        // $UPDATE FLASH
+				// parameters in flash have been updated.
+				//
         // $STATUS 
         // 1: (Maybe 10 MHz bad, based on packrat docs)
         // 2: (Maybe PPS bad, based on packrat docs)
@@ -45,27 +107,28 @@
         // $PPSDBG 2 0.0 [Fewer parmaters when in holdover?]
         // 1: same as clock (GPS Time)
         // 2: Same as $STATUS status, but updates much more often (and seems to skip states less often)
-        // 3: Floating point number. Output voltage. Tends towards 29e3 on my board. Proportional to the DAC voltage
+        // 3: Floating point number. DAC set value. Tends towards 29e3 on my board. Proportional to the DAC voltage
         //         On my RevC CTS board, Vbias ~= 6.25e-5*PPS3. This may make sense for a 4.096 V reference: 4.096/2^16=6.25e-5
         //         During startup, it is not put in the result string (this field is blank, so two sequential space characters are in the string)
         // 4: Measured phase offset? Units seem something like 6.5*ns
-        // 5: Looks like a saw-tooth between -15 and 15 (or so). Perhaps the quantization error reported by the GPS module?
-        // 6: Normally 0, but sometimes 2 (related to holdover/startup?)
-        // 7: Normally 0, but sometimes 1 or 2 (related to holdover/startup?)
-        // 8: Always 0.0? 
+        // 5: PPS offset from $PFEC,GPrrm message - range from -15 to +14
+        // 6: PPS status from $PFEC,GPrrm message
+        // 7: TRAIM status from $PFEC,GPrrm message 
+        // 8: Always 0.0 - temperature on 12.1.1 firmware
         // 
         // $EXTSTATUS
         // 1: SurveyStatus [0=normal, 1=surveying]
-        // 2: Number of sats (different than, but within 2 of $STATUS, perhaps only counts channels 0-9, range is 0-10)
-        // 3: DOP (maybe TDOP?)
+        // 2: Number of sats used for positioning, copied from $GPGGA message 
+        // 3: HDOP if 2Dfix, PDOP if 3D fix, copied from $GPGGA message
         // 4: Temperature (close to FPGA? close to oven?) (my board reads about 45C)
+				// 5: gps discard counter - error related ?
         //
         // $GETPOS (sent after setting position, or requesting position
         // Latitude
         // Longitude
         // Elevation_MSL
         // Correction to MSL to get WGS elevation (add this value to MSL to get WGS ellipsoid)
-        // Status flag [(Normal?)=0 on 196 board or =2 on Bliley board, Surveying=3], or maybe a FOM?
+        // Traim status from GPS. From Furuno GPrrm msg (0 = possible to detect and remove abnormalities, 1 = possible to detect, 2 = not possible to detect) 
         //
         // $SURVEY 40448488 -86915296 225 -34 7129
         // [sent during a survey]
@@ -118,5 +181,5 @@
         //     Resets to 0 at time of lock (and at end of holdover).
         // 5: Floating point. Smoothed version of PPS3, seems like ~6.5*(PPS phase in ns)?
         //     Resets to 0 at time of lock (and at end of holdover).
-        // 6: Flag, always zero?
-        // 7: Flag, always zero?
+        // 6: always zero
+        // 7: always zero
